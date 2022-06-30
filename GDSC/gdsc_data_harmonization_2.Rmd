@@ -1,0 +1,899 @@
+s---
+title: "GDSC Data Download Normalization"
+author: "Ariel Balter"
+date: "10/14/2021"
+output: 
+  html_notebook: default
+editor_options: 
+  chunk_output_type: inline
+---
+
+
+```{r, include=F}
+library(tidyverse)
+library(magrittr)
+# library(disk.frame)
+library(ggplot2)
+library(here)
+library(kableExtra)
+library(knitr)
+library(openxlsx)
+library(vroom)
+library(glue)
+```
+
+
+```{r, include=F}
+printDF = function(df)
+{
+  df %>% 
+  kable() %>% 
+  kable_styling(
+    bootstrap_options = c(
+      "condensed",
+      full_width = F,
+      font_size = 8
+    )
+  ) %>% 
+  kable_paper() %>% 
+  scroll_box(width = "100%", height = "200px")
+}
+
+registerS3method("knit_print", "data.frame", printDF)
+```
+
+
+```{r, include=F}
+knitr::opts_chunk$set(
+  comment = '',
+  fig.width = 6, 
+  fig.height = 6,
+  root.dir = here("GDSC")
+)
+
+eval_r = TRUE
+eval_sh = FALSE
+save_dir = "large_files/harmonized"
+
+gc()
+```
+
+```{bash ,  engine.opts='-l'}
+mkdir -p large_files/harmonized
+rm -rf large_files/harmonized/*
+```
+
+
+
+
+# Introduction
+In a separate notebook we demonstrate how to access GDSC data as well as some of the problems with the data which need to be addressed. In this notebook, we will look at the data more deeply for how normalize and harmonize it.
+
+We will start with the metadata tables which are smaller, and move on to the results tables.
+
+
+# Metadata
+## Cell Lines
+We have two sources for the cell lines data, the xlsx file in the FTP release and the file from the Cell Lines page on the website.
+
+We observed that the columns in the website data are wrong. Let's look at the data.
+
+### Website Version
+```{r}
+cell_lines_website_raw = read_csv('large_files/cell_lines.csv')
+```
+
+```{r}
+cell_lines_website = 
+  cell_lines_website_raw %>% 
+  select(-1) %>% 
+  rename(
+    cell_line_name = 1,
+    sanger_cell_id = 2,
+    cosmic_cell_id = 3,
+    tcga_cancer_name = 4,
+    tmp = 5
+  )
+
+cell_lines_website =
+  cell_lines_website %>% 
+  separate(
+    col=tmp, 
+    into= c("tissue_type", "tissue_subtype", "gdsc_release"), 
+    sep=",",
+    extra="drop"
+  )
+```
+
+
+```{r, eval=eval_r}
+
+cell_lines_website %>% 
+  # head(20) %>% 
+  kable() %>% 
+  kable_styling(
+    bootstrap_options = c(
+      "condensed",
+      full_width = F,
+      font_size = 7
+    ),
+    fixed_thead = T,
+    font_size = 9
+  ) %>%
+  kable_paper() %>% 
+  scroll_box(width = "100%", height = "500px")
+
+lapply(cell_lines_website, n_distinct) %>% 
+  data.frame() %>% 
+  t() %>% 
+  data.frame()
+
+cell_lines_website %>% 
+  count(
+    cosmic_sample_id, 
+    cell_line_name, 
+    sanger_cell_id
+  ) %>% 
+  arrange(n) %>% 
+  printDF()
+
+gc()
+```
+
+```{r}
+```
+
+
+### FTP Version
+```{r}
+cell_lines_ftp = read.xlsx("large_files/Cell_Lines_Details.xlsx")
+
+glimpse(cell_lines_ftp)
+
+cell_lines_ftp %>% 
+  # head(20) %>% 
+  kable() %>% 
+  kable_styling(
+    bootstrap_options = c(
+      "condensed",
+      full_width = F,
+      font_size = 7
+    ),
+    fixed_thead = T,
+    font_size = 9
+  ) %>% 
+  kable_paper() %>% 
+  scroll_box(width = "100%", height = "500px")
+
+cell_lines_ftp %>% summarize(N = n_distinct(Sample.Name))
+
+lapply(cell_lines_ftp, n_distinct) %>% 
+  data.frame() %>% 
+  t() %>% 
+  data.frame()
+
+gc()
+```
+
+
+```{r}
+cell_lines_ftp %>% pull(Sample.Name) %>% length()
+cell_lines_website %>% pull(cell_line_name) %>% length()
+
+setdiff(
+  cell_lines_website %>% pull(cell_line_name), 
+  cell_lines_ftp %>% pull(Sample.Name)
+) %>% 
+length()
+
+setdiff(
+  cell_lines_ftp %>% pull(Sample.Name),
+  cell_lines_website %>% pull(cell_line_name)
+) %>% 
+length()
+
+intersect(
+  cell_lines_ftp %>% pull(Sample.Name),
+  cell_lines_website %>% pull(cell_line_name)
+) %>% 
+length()
+
+gc()
+```
+
+
+These tables have some of the same data, and also each have data the other doesn't. The number of cell lines (cosmic id, cell model passports id) is very close. However, the website table indicates which were included in each gdsc release (1 vs 2). So it has roughly twice as many rows.
+
+Harmonizing the column names and joining on the common columns yields this table:
+
+```{r}
+cell_lines_ftp_ = 
+  cell_lines_ftp %>% 
+  rename(
+    cell_line_name = Sample.Name,
+    cosmic_sample_id = COSMIC.identifier,
+    wes = `Whole.Exome.Sequencing.(WES)`,
+    cna = `Copy.Number.Alterations.(CNA)`,
+    gene_expression = Gene.Expression,
+    methylation = Methylation,
+    drug_response = Drug.Response,
+    tissue_type = GDSC.Tissue.descriptor.1,
+    tissue_subtype = GDSC.Tissue.descriptor.2,
+    tcga_cancer_name = `Cancer.Type.(matching.TCGA.label)`,
+    microsatellite_instability_class = `Microsatellite.instability.Status.(MSI)`,
+    screening_medium = Screen.Medium,
+    growth_properties = Growth.Properties
+  ) %>% 
+  mutate(across(everything(), tolower))
+
+cell_lines_website_ = 
+  cell_lines_website %>% 
+  rename(tcga_cancer_name = tcga_classification) %>% 
+  mutate(across(everything(), tolower))
+
+cell_lines_website %>% count(gdsc_release)
+
+gc()
+```
+
+### Joined
+```{r}
+cell_lines_metadata = 
+  full_join(cell_lines_ftp_, cell_lines_website_) %>% 
+  arrange(cell_line_name, cosmic_sample_id, tissue_type, tissue_subtype) %>% 
+  select(
+    cell_line_name,
+    cosmic_sample_id, 
+    cell_model_passports_id,
+    tissue_type,
+    tissue_subtype,
+    gdsc_release,
+    cell_sample_size
+  )
+
+lapply(cell_lines_metadata, n_distinct) %>% 
+  data.frame() %>% 
+  t() %>% 
+  data.frame()
+
+gc()
+```
+### Write to file
+```{r}
+vroom_write(cell_lines_metadata, file.path(save_dir, "cell_lines_metadata.tsv"))
+
+rm(cell_lines_metadata)
+gc()
+```
+
+
+## Drug Data
+There are three places access the drug metadata. The FTP release has the file _screened_compunds_rel_8.2.csv_. The "Compounds" page has the data preview and download buttons. And, the Downloads page form tabs for ANOVA Results and Drug Data (which is actually the IC50 results) show a preview table of drug metadata that you can download.
+
+### Website Version
+We have the common problem of the header not matching the data.
+
+**Current Colnames:**
+```{bash ,  engine.opts='-l'}
+head -n1 large_files/drug_list.tsv
+
+awk -v FS="\t" 'NR<3{print NF}' large_files/drug_list.tsv
+```
+
+
+**New colnames:**
+drug_id, drug_name, drug_name_synonyms, drug_targets, target_pathways, pubchem_id, gdsc_release, cell_sample_size, screening_site, count
+
+`<remove>` stands for the fact that the first column in the exported CSV is actually a repreat of the `cosmic_id`.
+```{bash ,  engine.opts='-l'}
+colnames="drug_id,drug_name,drug_name_synonyms,drug_targets,target_pathways,pubchem_id,gdsc_release,cell_sample_size,screening_site,count"
+
+sed \
+  "1c${colnames//,/\\t}" large_files/drug_list.tsv \
+  > large_files/drug_list_newcols.tsv
+```
+
+```{r}
+drugs_website = 
+  vroom("large_files/drug_list_newcols.tsv", delim="\t") %>% 
+  distinct() 
+# %>% 
+  # select(-count)
+  # rename(
+  #   drug_name = Name,
+  #   drug_name_synonyms = Synonyms,
+  #   drug_targets = Targets,
+  #   target_pathways = `Target pathway`,
+  #   pubchem_id = PubCHEM,
+  #   gdsc_release = `Sample Size`
+  # ) %>%
+  # separate(
+  #   col = Count,
+  #   into = c("cell_sample_size", "screening_site", "count"),
+  #   sep = "\t"
+  # )
+
+glimpse(drugs_website)
+
+drugs_website %>% 
+  # head(20) %>% 
+  kable() %>% 
+  kable_styling(
+    bootstrap_options = c(
+      "condensed",
+      full_width = F,
+      font_size = 7
+    ),
+    fixed_thead = T,
+    font_size = 9
+  ) %>%
+  kable_paper() %>% 
+  scroll_box(width = "100%", height = "500px")
+
+lapply(drugs_website, n_distinct) %>% 
+  data.frame() %>% 
+  t() %>% 
+  data.frame()
+
+gc()
+```
+
+### FTP Version
+```{r}
+drugs_ftp = 
+  vroom("large_files/screened_compunds_rel_8.2.csv", delim=",") %>% 
+  rename_with(tolower) %>% 
+  rename(
+    drug_name_synonyms = synonyms,
+    drug_targets = target,
+    target_pathways = target_pathway
+  ) 
+
+glimpse(drugs_ftp)
+
+drugs_ftp %>% 
+  # head(20) %>% 
+  kable() %>% 
+  kable_styling(
+    bootstrap_options = c(
+      "condensed",
+      full_width = F,
+      font_size = 7
+    ),
+    fixed_thead = T,
+    font_size = 9
+  ) %>%
+  kable_paper() %>% 
+  scroll_box(width = "100%", height = "500px")
+
+lapply(drugs_ftp, n_distinct) %>% 
+  data.frame() %>% 
+  t() %>% 
+  data.frame()
+
+gc()
+```
+
+
+### Preview Version
+```{}
+https://www.cancerrxgene.org/api/download/drug_list?pathway=All&screening_set=GDSC2
+
+wget -O large_files/drugs_preview_gdsc1.json https://www.cancerrxgene.org/api/download/drug_list?pathway=All&screening_set=GDSC1
+```
+
+I couldn't curl or wget the data (which is JSON), so I had to just click on the button.
+
+This table has only 198 records, so maybe it really is just a preview.
+```{}
+drugs_preview = 
+  vroom("large_files/drug_preview_click.tsv", delim="\t") %>% 
+  rename(
+    drug_name_synonyms = synonyms,
+    drug_targets = targets,
+    target_pathways = pathway_name,
+    pubchem_id = pubchem
+  )
+
+glimpse(drugs_preview)
+
+drugs_preview %>% 
+  # head(20) %>% 
+  kable() %>% 
+  kable_styling(
+    bootstrap_options = c(
+      "condensed",
+      full_width = F,
+      font_size = 7
+    ),
+    fixed_thead = T,
+    font_size = 9
+  ) %>%
+  kable_paper() %>% 
+  scroll_box(width = "100%", height = "500px")
+
+lapply(drugs_preview, n_distinct) %>% 
+  data.frame() %>% 
+  t() %>% 
+  data.frame()
+```
+
+
+### Joined
+```{r}
+drug_metadata = full_join(drugs_ftp, drugs_website)
+
+lapply(drug_metadata, n_distinct) %>% 
+  data.frame() %>% 
+  t() %>% 
+  data.frame()
+
+gc()
+```
+
+### Write to file
+```{r}
+vroom_write(drug_metadata, file.path(save_dir, "drug_metadata.tsv"))
+rm(drug_metadata)
+gc()
+```
+
+
+## Genetic Features
+These come from the _Features_ page. We already have these saved. But we should rename them as metadata.
+```{bash ,  engine.opts='-l'}
+cp large_files/genetic_features_PANCANCER_metadata.tsv large_files/harmonized/genetic_features_pancancer_metadata.tsv
+
+cp large_files/genetic_features_all_tcga_metadata.tsv large_files/harmonized/genetic_features_all_tcga_metadata.tsv
+```
+
+These need some column harmonization
+**Current Colnames:** tcga_cancer_type        feature_id      Name    Type    Known Driver Genes (cna only)   Count
+
+**New Colnames:** 
+tcga_cancer_name        genetic_feature_id      genetic_feature_name    genetic_feature_type    known_driver_genes_cna (eliminate count)
+```{bash ,  engine.opts='-l'}
+pancancer_colnames="genetic_feature_id,genetic_feature_name,genetic_feature_type,known_driver_genes_cna"
+
+sed \
+  "1c${pancancer_colnames//,/\\t}" \
+  large_files/genetic_features_PANCANCER_metadata.tsv \
+  | cut -f 1-4 \
+  > large_files/harmonized/genetic_features_pancancer_metadata.tsv
+
+tcga_colnames="tcga_cancer_name,genetic_feature_id,genetic_feature_name,genetic_feature_type,known_driver_genes_cna"
+sed \
+  "1c${tcga_colnames//,/\\t}" \
+  large_files/genetic_features_all_tcga_metadata.tsv \
+  | cut -f 1-5 \
+  > large_files/harmonized/genetic_features_all_tcga_metadata.tsv
+```
+
+
+# Results Data
+The results come from the FTP download. I consider the most reliable source of these to be the XLSX files. For instance, the IC50 results (e.g. _GDSC2_fitted_dose_response...csv_) is ragged due to array fields. So I will read in the XLSX files, harmonize column names, and save them as TSV files.
+
+## IC50
+
+### Load GDSC1
+```{r}
+ic50_gdsc1_raw = read.xlsx('large_files/GDSC1_fitted_dose_response_25Feb20.xlsx')
+colnames(ic50_gdsc1_raw)
+
+ic50_gdsc1 = 
+  ic50_gdsc1_raw %>% 
+  
+  rename_with(function(x)
+  {
+    x = 
+      x %>% 
+      tolower() %>% 
+      str_replace_all("\\.", "_")
+  }) %>% 
+  select(
+    drug_name,
+    drug_id,
+    cell_line_name,
+    cosmic_sample_id = cosmic_id,
+    tcga_cancer_name = tcga_desc,
+    drug_targets = putative_target,
+    target_pathways = pathway_name,
+    gdsc_release = dataset,
+    everything()
+  )
+
+colnames(ic50_gdsc1)
+
+gc()
+```
+
+### Write GDSC1
+```{r}
+save_dir = "large_files/harmonized"
+# vroom_write(ic50_gdsc1, file.path(save_dir, "gdsc1_drug_ic50_results.tsv"))
+
+
+write.table(ic50_gdsc1, file=file.path(save_dir, "gdsc1_drug_ic50_results.tsv"), sep="\t", row.names=F)
+
+rm(ic50_gdsc1_raw)
+rm(ic50_gdsc1)
+gc()
+```
+
+
+### Load GDSC2
+```{r}
+ic50_gdsc2_raw = read.xlsx('large_files/GDSC2_fitted_dose_response_25Feb20.xlsx')
+colnames(ic50_gdsc2_raw)
+
+ic50_gdsc2 = 
+  ic50_gdsc2_raw %>% 
+  
+  rename_with(function(x)
+  {
+    x = 
+      x %>% 
+      tolower() %>% 
+      str_replace_all("\\.", "_")
+  }) %>% 
+  select(
+    drug_name,
+    drug_id,
+    cell_line_name,
+    cosmic_sample_id = cosmic_id,
+    tcga_cancer_name = tcga_desc,
+    drug_targets = putative_target,
+    target_pathways = pathway_name,
+    gdsc_release = dataset,
+    everything()
+  )
+
+colnames(ic50_gdsc2)
+
+gc()
+```
+
+### Write GDSC2
+```{r}
+vroom_write(ic50_gdsc2, file.path(save_dir, "gdsc2_drug_ic50_results.tsv"))
+
+rm(ic50_gdsc2_raw)
+rm(ic50_gdsc2)
+gc()
+```
+
+
+
+## ANOVA
+### GDSC1
+#### Load GDSC1
+```{r}
+wb = loadWorkbook("large_files/ANOVA_results_GDSC1_20Feb20.xlsx")
+sheets = names(wb)
+print(sheets)
+
+```
+
+#### Check number of rows
+```{r}
+num_rows = list()
+for (sheet in sheets)
+{
+  data = read.xlsx(
+    "large_files/ANOVA_results_GDSC1_20Feb20.xlsx",
+    sheet = sheet
+  )
+  num_rows[sheet] = nrow(data)
+}
+
+print(num_rows)
+
+pancancer_results = read.xlsx(
+  "large_files/ANOVA_results_GDSC1_20Feb20.xlsx",
+  sheet = sheets[1]
+)
+
+glimpse(pancancer_results)
+
+gc()
+```
+
+
+#### Check columns
+```{}
+for (sheet in sheets)
+{
+  data = read.xlsx(
+    "large_files/ANOVA_results_GDSC1_20Feb20.xlsx",
+    sheet = sheet
+  )
+  print(colnames(data))
+}
+```
+
+
+#### Write pancancer to TSV
+```{r}
+### Write pancancer
+sheet = "PANCANCER_ANOVA"
+print(glue("SHEET: {sheet}"))
+
+data = 
+  read.xlsx(
+    "large_files/ANOVA_results_GDSC1_20Feb20.xlsx",
+    sheet = sheet
+) %>% 
+rename(
+  drug_targets = target,
+  target_pathways = target_pathway,
+  gdsc_release = dataset_version,
+  genetic_feature_name = feature_name
+)
+
+dataset_name = 
+  sheet %>% 
+  str_remove("_ANOVA") %>% 
+  tolower()
+
+print(dataset_name)
+
+filename = glue("large_files/harmonized/gdsc1_anova_{dataset_name}_results.tsv")
+
+vroom_write(data, filename)
+
+rm(data)
+```
+
+#### Write all tcga to TSV
+```{r}
+### Combine rest of TCGA
+filename = "large_files/harmonized/gdsc1_anova_all_tcga_results.tsv"
+
+
+### Read in just the headers
+data = read.xlsx(
+  "large_files/ANOVA_results_GDSC1_20Feb20.xlsx",
+  sheet = sheets[2],
+  rows = 1
+) %>% 
+rename(
+  drug_targets = target,
+  target_pathways = target_pathway,
+  gdsc_release = dataset_version,
+  genetic_feature_name = feature_name
+) %>% 
+mutate(tcga_cancer_name = "") %>% 
+select(tcga_cancer_name, everything()) %>% 
+head(0) %>% 
+vroom_write(., filename)
+
+for (sheet in sheets %>% tail(-1))
+{
+  print(glue("SHEET: {sheet}"))
+  
+    
+  tcga_cancer_name = 
+    sheet %>% 
+    str_remove("_ANOVA") %>% 
+    tolower()
+  
+  print(tcga_cancer_name)
+  
+  data = read.xlsx(
+    "large_files/ANOVA_results_GDSC1_20Feb20.xlsx",
+    sheet = sheet
+  ) %>% 
+  rename(
+    drug_targets = target,
+    target_pathways = target_pathway,
+    gdsc_release = dataset_version,
+    genetic_feature_name = feature_name
+  ) %>% 
+  mutate(tcga_cancer_name = tcga_cancer_name) %>% 
+  select(tcga_cancer_name, everything()) %>% 
+  vroom_write(., filename, append=T)
+}
+
+
+gc()
+
+rm(data)
+```
+
+
+
+### GDSC2
+#### Load GDSC2
+```{r}
+wb = loadWorkbook("large_files/ANOVA_results_GDSC2_20Feb20.xlsx")
+sheets = names(wb)
+print(sheets)
+
+```
+
+#### Check number of rows
+```{r}
+num_rows = list()
+for (sheet in sheets)
+{
+  data = read.xlsx(
+    "large_files/ANOVA_results_GDSC2_20Feb20.xlsx",
+    sheet = sheet
+  )
+  num_rows[sheet] = nrow(data)
+}
+
+print(num_rows)
+
+pancancer_results = read.xlsx(
+  "large_files/ANOVA_results_GDSC2_20Feb20.xlsx",
+  sheet = sheets[1]
+)
+
+glimpse(pancancer_results)
+
+gc()
+```
+
+
+#### Check columns
+```{}
+for (sheet in sheets)
+{
+  data = read.xlsx(
+    "large_files/ANOVA_results_GDSC2_20Feb20.xlsx",
+    sheet = sheet
+  )
+  print(colnames(data))
+}
+```
+
+
+#### Write to TSV
+```{r}
+### Write pancancer
+sheet = "PANCANCER_ANOVA"
+print(glue("SHEET: {sheet}"))
+
+data = 
+  read.xlsx(
+    "large_files/ANOVA_results_GDSC2_20Feb20.xlsx",
+    sheet = sheet
+  ) %>% 
+  rename(
+    drug_targets = target,
+    target_pathways = target_pathway,
+    gdsc_release = dataset_version,
+    genetic_feature_name = feature_name
+  )
+
+dataset_name = 
+  sheet %>% 
+  str_remove("_ANOVA") %>% 
+  tolower()
+
+print(dataset_name)
+
+filename = glue("large_files/harmonized/gdsc2_anova_{dataset_name}_results.tsv")
+
+vroom_write(data, filename)
+
+
+### Combine rest of TCGA
+filename = "large_files/harmonized/gdsc2_anova_all_tcga_results.tsv"
+
+### Read in just the headers
+data = read.xlsx(
+  "large_files/ANOVA_results_GDSC2_20Feb20.xlsx",
+  sheet = sheets[2],
+  rows = 1
+) %>% 
+rename(
+  drug_targets = target,
+  target_pathways = target_pathway,
+  gdsc_release = dataset_version,
+  genetic_feature_name = feature_name
+) %>% 
+mutate(tcga_cancer_name = "") %>% 
+select(tcga_cancer_name, everything())  %>% 
+head(0) %>% 
+vroom_write(., filename)
+
+for (sheet in sheets %>% tail(-1))
+{
+  
+  print(glue("SHEET: {sheet}"))
+  
+    
+  tcga_cancer_name = 
+    sheet %>% 
+    str_remove("_ANOVA") %>% 
+    tolower()
+  
+  print(tcga_cancer_name)
+  
+  data = read.xlsx(
+    "large_files/ANOVA_results_GDSC2_20Feb20.xlsx",
+    sheet = sheet
+  ) %>% 
+  rename(
+    drug_targets = target,
+    target_pathways = target_pathway,
+    gdsc_release = dataset_version,
+    genetic_feature_name = feature_name
+  ) %>% 
+  mutate(tcga_cancer_name = tcga_cancer_name) %>% 
+  select(tcga_cancer_name, everything()) %>% 
+  vroom_write(., filename, append=T)
+}
+
+rm(data)
+
+gc()
+```
+
+
+## Genetic Features
+The genetic features results come from the _Downloads_ page rather than the _Features_ page which contains the metadata.
+
+
+We have two files: one for the PANCANCER analysis, and one for the individual TCGA cancer types which we combined into a single file.
+### Load PANCANCER
+```{r}
+genetic_features_pancancer_raw = vroom("large_files/genetic_features_PANCANCER_results.tsv")
+
+genetic_features_pancancer = 
+  genetic_features_pancancer_raw %>% 
+  rename(
+    tissue_type = gdsc_desc1,
+    tissue_subtype = gdsc_desc2,
+    tcga_cancer_name = tcga_desc,
+    genetic_feature_name = genetic_feature
+  )
+
+colnames(genetic_features_pancancer)
+
+gc()
+```
+
+### Write PANCANCER
+```{r}
+vroom_write(genetic_features_pancancer, file.path(save_dir, "genetic_features_pancancer_results.tsv"))
+
+rm(genetic_features_pancancer)
+```
+
+### Load Individual Cancer Types
+```{r}
+genetic_features_all_tcga_raw = vroom("large_files/genetic_features_all_tcga_results.tsv")
+
+genetic_features_all_tcga = 
+  genetic_features_all_tcga_raw %>% 
+  select(-tcga_desc) %>% 
+  rename(
+    tissue_type = gdsc_desc1,
+    tissue_subtype = gdsc_desc2,
+    tcga_cancer_name = tcga_cancer_type,
+    genetic_feature_name = genetic_feature
+  )
+
+colnames(genetic_features_all_tcga)
+
+gc()
+```
+
+### Write Individual Cancer Types
+```{r}
+vroom_write(genetic_features_all_tcga, file.path(save_dir, "genetic_features_all_tcga_results.tsv"))
+
+rm(genetic_features_all_tcga)
+
+gc()
+```
+
+
+
+
+
+
+

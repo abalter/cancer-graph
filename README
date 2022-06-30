@@ -1,0 +1,22 @@
+# GDSC
+https://www.cancerrxgene.org/
+
+# Cell Model Passports
+https://cellmodelpassports.sanger.ac.uk/downloads
+
+# DepMap
+https://depmap.org/portal/download/
+
+# DrugBank
+https://go.drugbank.com/releases/latest
+
+# HUGO
+https://www.genenames.org/download/archive/#!/#tocAnchor-1-3
+
+# AnticancerFund
+https://www.anticancerfund.org/en/cancerdrugs-db
+
+# Cellosaurus
+https://ftp.expasy.org/databases/cellosaurus/
+wget -r --no-parent -e robots=off https://ftp.expasy.org/databases/cellosaurus/
+
