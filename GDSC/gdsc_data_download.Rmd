@@ -1,7 +1,7 @@
 ---
 title: "GDSC Data Download and Exploration"
 author: "Ariel Balter"
-date: "10/14/2021"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
   html_notebook:
     number_sections: yes
@@ -113,6 +113,8 @@ Here is a listing of the files in the archive.
 
 ### WGET the Releases Index
 ```{bash,  engine.opts='-l'}
+mkdir -p large_files
+
 wget -O large_files/releases.html ftp://ftp.sanger.ac.uk/pub/project/cancerrxgene/releases/
 
 cat large_files/releases.html | sed -E $'/^<pre>$/,/^<\/pre>$/!d;/^<pre>$/d;/^<\/pre>$/d; s/^\s+//g; s/\s{2,}/\t/g; s/<[^<>]+>//g'
@@ -146,6 +148,7 @@ wget \
   --recursive \
   --no-directories \
   --directory-prefix=large_files \
+  --backups 0 \
   ftp://ftp.sanger.ac.uk/pub/project/cancerrxgene/releases/release-8.2/
   
 ls -larSh large_files
@@ -175,7 +178,7 @@ while read -r file; do
   | sort \
   | uniq -c
   
-  echo "--------------------------------------------------\n\n"
+  echo "-------------------------------------------------\n\n"
 done
 ```
 
@@ -204,20 +207,23 @@ print(sheets)
 ### Cell Line Details
 **Note:** For later use, I will save a file of the cell line details.
 ```{r}
-print("---- Cell Line Details ---")
+print("--- Cell Line Details ---")
 cell_line_details = readWorkbook(
   wb,
   sheet="Cell line details"
 )
 glimpse(cell_line_details)
 
-vroom_write(cell_line_details, "large_files/cell_line_details_only.tsv")
+vroom_write(
+  cell_line_details, 
+  "large_files/cell_line_details_only.tsv"
+  )
 ```
 
 ### COSMIC tissue classification
 This refers to the COSMIC project
 ```{r}
-print("---- COSMIC Tissue Classificaiton ---")
+print("--- COSMIC Tissue Classificaiton ---")
 cell_line_details = readWorkbook(
   wb,
   sheet="COSMIC tissue classification"
@@ -233,7 +239,7 @@ It would be worthwhile to cross-check that the definitions are those provided by
 
 **Note:** For later use, I will save a file of the TCGA cancer types.
 ```{r}
-print("---- TCGA Cancer Types ---")
+print("--- TCGA Cancer Types ---")
 tcga_cancer_types = readWorkbook(
   wb, 
   sheet="Decode", 

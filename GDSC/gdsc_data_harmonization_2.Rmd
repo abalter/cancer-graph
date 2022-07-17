@@ -1,4 +1,4 @@
-s---
+---
 title: "GDSC Data Download Normalization"
 author: "Ariel Balter"
 date: "10/14/2021"
@@ -130,7 +130,7 @@ lapply(cell_lines_website, n_distinct) %>%
 
 cell_lines_website %>% 
   count(
-    cosmic_sample_id, 
+    # cosmic_sample_id, 
     cell_line_name, 
     sanger_cell_id
   ) %>% 
@@ -146,11 +146,11 @@ gc()
 
 ### FTP Version
 ```{r}
-cell_lines_ftp = read.xlsx("large_files/Cell_Lines_Details.xlsx")
+cell_lines_ftp_raw = read.xlsx("large_files/Cell_Lines_Details.xlsx")
 
-glimpse(cell_lines_ftp)
+glimpse(cell_lines_ftp_raw)
 
-cell_lines_ftp %>% 
+cell_lines_ftp_raw %>% 
   # head(20) %>% 
   kable() %>% 
   kable_styling(
@@ -165,9 +165,9 @@ cell_lines_ftp %>%
   kable_paper() %>% 
   scroll_box(width = "100%", height = "500px")
 
-cell_lines_ftp %>% summarize(N = n_distinct(Sample.Name))
+cell_lines_ftp_raw %>% summarize(N = n_distinct(Sample.Name))
 
-lapply(cell_lines_ftp, n_distinct) %>% 
+lapply(cell_lines_ftp_raw, n_distinct) %>% 
   data.frame() %>% 
   t() %>% 
   data.frame()
@@ -177,23 +177,28 @@ gc()
 
 
 ```{r}
-cell_lines_ftp %>% pull(Sample.Name) %>% length()
+print("length of ftp version")
+cell_lines_ftp_raw %>% pull(Sample.Name) %>% length()
+print("length of website version")
 cell_lines_website %>% pull(cell_line_name) %>% length()
 
+print("in website not ftp")
 setdiff(
   cell_lines_website %>% pull(cell_line_name), 
-  cell_lines_ftp %>% pull(Sample.Name)
+  cell_lines_ftp_raw %>% pull(Sample.Name)
 ) %>% 
 length()
 
+print("in ftp not website")
 setdiff(
-  cell_lines_ftp %>% pull(Sample.Name),
+  cell_lines_ftp_raw %>% pull(Sample.Name),
   cell_lines_website %>% pull(cell_line_name)
 ) %>% 
 length()
 
+print("in both")
 intersect(
-  cell_lines_ftp %>% pull(Sample.Name),
+  cell_lines_ftp_raw %>% pull(Sample.Name),
   cell_lines_website %>% pull(cell_line_name)
 ) %>% 
 length()
@@ -204,11 +209,12 @@ gc()
 
 These tables have some of the same data, and also each have data the other doesn't. The number of cell lines (cosmic id, cell model passports id) is very close. However, the website table indicates which were included in each gdsc release (1 vs 2). So it has roughly twice as many rows.
 
-Harmonizing the column names and joining on the common columns yields this table:
+**IMPORTANT**
+From exploring Cell Model Passports and the CCLE, I have decided that for the time being it will be best to use the "website" version and ignore the ftp version for now.
 
 ```{r}
-cell_lines_ftp_ = 
-  cell_lines_ftp %>% 
+cell_lines_ftp = 
+  cell_lines_ftp_raw %>% 
   rename(
     cell_line_name = Sample.Name,
     cosmic_sample_id = COSMIC.identifier,
@@ -226,30 +232,28 @@ cell_lines_ftp_ =
   ) %>% 
   mutate(across(everything(), tolower))
 
-cell_lines_website_ = 
+cell_lines_website = 
   cell_lines_website %>% 
-  rename(tcga_cancer_name = tcga_classification) %>% 
   mutate(across(everything(), tolower))
 
-cell_lines_website %>% count(gdsc_release)
 
 gc()
 ```
 
 ### Joined
 ```{r}
-cell_lines_metadata = 
-  full_join(cell_lines_ftp_, cell_lines_website_) %>% 
-  arrange(cell_line_name, cosmic_sample_id, tissue_type, tissue_subtype) %>% 
-  select(
-    cell_line_name,
-    cosmic_sample_id, 
-    cell_model_passports_id,
-    tissue_type,
-    tissue_subtype,
-    gdsc_release,
-    cell_sample_size
-  )
+# cell_lines_metadata = 
+#   inner_join(cell_lines_ftp, cell_lines_website) %>% 
+#   arrange(cell_line_name, cosmic_sample_id, tissue_type, tissue_subtype) %>% 
+#   select(
+#     cell_line_name,
+#     cosmic_sample_id, 
+#     tissue_type,
+#     tissue_subtype,
+#     gdsc_release
+#   )
+
+cell_lines_metadata = cell_lines_website
 
 lapply(cell_lines_metadata, n_distinct) %>% 
   data.frame() %>% 
