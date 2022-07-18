@@ -95,22 +95,56 @@ dataset_bq = bq_create("dataset", project_name, dataset_name)
 
 # Load Gene Dependencies
 ```{r, label="load wide tables"}
-achilles_dependency_wide = 
-  read_csv(
-    "large_files/Achilles_gene_dependency.csv",
+sanger_essentiality_wide = 
+  read_tsv(
+    "large_files/CRISPRcleanR_FC.txt",
     n_max = Inf
-  )
+  ) %>% 
+  rename(hgnc_name="...1")
 
-crispr_dependency_wide = 
-  read_csv(
-    "large_files/CRISPR_gene_dependency.csv",
+broad_essentiality_wide = 
+  read_tsv(
+    "large_files/CERES_FC.txt",
     n_max = Inf
-  )
+  ) %>% 
+  rename(hgnc_name="...1")
 ```
 
 # Wide to Long
 ```{r, label="wide to long"}
-achilles_dependency_fields = list(
+sanger_essentiality_long = 
+  sanger_essentiality_wide %>% 
+  pivot_longer(
+    cols = c(-hgnc_name), 
+    names_to = "depmap_id",
+    values_to = "dependency"
+  )
+
+
+broad_essentiality_long = 
+  sanger_essentiality_wide %>% 
+  pivot_longer(
+    cols = c(-hgnc_name), 
+    names_to = "depmap_id",
+    values_to = "dependency"
+  )
+
+rm(achilles_dependency_wide)
+rm(broad_essentiality_wide)
+gc()
+
+```
+
+# Load Metadata
+```{r, label="load metadata"}
+achilles_metadata = read_csv("large_files/Achilles/Achilles_metadata.csv")
+```
+
+
+# BQ Fields
+## Essentiality
+```{r}
+essentiality_fields = list(
   bq_field(
     name = "Cell_Line",
     type = "STRING",
@@ -133,47 +167,10 @@ achilles_dependency_fields = list(
   )
 )
 
-achilles_dependency_long = 
-  achilles_dependency_wide %>% 
-  pivot_longer(
-    cols = c(-DepMap_ID), 
-    names_to = "Gene_Name",
-    values_to = "Dependency"
-  ) %>% 
-  # mutate(project = "Achilles") %>% 
-  rename(Cell_Line = DepMap_ID) %>% 
-  extract(
-    Gene_Name, 
-    c("HUGO", "Entrez"), 
-    "([\\w\\-]+) \\(([0-9]+)\\)"
-  )
-
-crispr_dependency_long = 
-  crispr_dependency_wide %>% 
-  pivot_longer(
-    cols = c(-DepMap_ID), 
-    names_to = "Gene_Name",
-    values_to = "Dependency"
-  ) %>% 
-  # mutate(project = "CRISPR") %>% 
-  rename(Cell_Line = DepMap_ID) %>% 
-  extract(
-    Gene_Name, 
-    c("HUGO", "Entrez"), 
-    "([\\w\\-]+) \\(([0-9]+)\\)"
-  )
-
-
-rm(achilles_dependency_wide)
-rm(crispr_dependency_wide)
-gc()
-
 ```
 
-# Load Metadata
-```{r, label="load metadata"}
-achilles_metadata = read_csv("large_files/Achilles/Achilles_metadata.csv")
-
+## Metadata
+```{r}
 metadata_fields = list(
   bq_field(
     name = "DepMap_ID",
@@ -206,7 +203,10 @@ metadata_fields = list(
     description = "Percentage of cells remaining GFP negative on days 12-14 of cas9 activity assay as measured by FACs"
   )
 )
+
 ```
+
+
 
 
 # Upload
@@ -222,10 +222,10 @@ bq_perform_upload(
 
 ```
 
-## Achilles
+## Sanger
 ```{r, label="achilles"}
 bq_perform_upload(
-  bq_table(dataset_bq, "achilles_gene_dependency"),
+  bq_table(dataset_bq, "sanger_integrated_essentiality"),
   values = achilles_dependency_long,
   create_disposition = "CREATE_IF_NEEDED",
   write_disposition = "WRITE_TRUNCATE",
@@ -233,10 +233,10 @@ bq_perform_upload(
 )
 ```
 
-## CRISPR
+## Broad
 ```{r, label="crispr"}
 bq_perform_upload(
-  bq_table(dataset_bq, "crispr_gene_dependency"),
+  bq_table(dataset_bq, "broad_integrated_essentiality"),
   values = crispr_dependency_long,
   create_disposition = "CREATE_IF_NEEDED",
   write_disposition = "WRITE_TRUNCATE",

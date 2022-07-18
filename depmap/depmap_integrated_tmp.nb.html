@@ -12,7 +12,7 @@
 <meta name="author" content="Ariel Balter" />
 
 
-<title>Depmap package test</title>
+<title>Upload Depmap</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -2934,7 +2934,7 @@ div.tocify {
 
 
 
-<h1 class="title toc-ignore">Depmap package test</h1>
+<h1 class="title toc-ignore">Upload Depmap</h1>
 <h4 class="author">Ariel Balter</h4>
 <h4 class="date">18 July, 2022</h4>
 
@@ -2944,26 +2944,9 @@ div.tocify {
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShybWFya2Rvd24pXG5saWJyYXJ5KHRpZHl2ZXJzZSlcbmBgYCJ9 -->
-<pre class="r"><code>library(rmarkdown)
-library(tidyverse)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiUmVnaXN0ZXJlZCBTMyBtZXRob2RzIG92ZXJ3cml0dGVuIGJ5ICdkYnBseXInOlxuICBtZXRob2QgICAgICAgICBmcm9tXG4gIHByaW50LnRibF9sYXp5ICAgICBcbiAgcHJpbnQudGJsX3NxbCAgICAgIFxuLS0gQXR0YWNoaW5nIHBhY2thZ2VzIC0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0gdGlkeXZlcnNlIDEuMy4xIC0tXG52IGdncGxvdDIgMy4zLjYgICAgIHYgcHVycnIgICAwLjMuNFxudiB0aWJibGUgIDMuMS43ICAgICB2IGRwbHlyICAgMS4wLjlcbnYgdGlkeXIgICAxLjIuMCAgICAgdiBzdHJpbmdyIDEuNC4wXG52IHJlYWRyICAgMi4xLjIgICAgIHYgZm9yY2F0cyAwLjUuMVxuLS0gQ29uZmxpY3RzIC0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0gdGlkeXZlcnNlX2NvbmZsaWN0cygpIC0tXG54IGRwbHlyOjpmaWx0ZXIoKSBtYXNrcyBzdGF0czo6ZmlsdGVyKClcbnggZHBseXI6OmxhZygpICAgIG1hc2tzIHN0YXRzOjpsYWcoKVxuIn0= -->
-<pre><code>Registered S3 methods overwritten by &#39;dbplyr&#39;:
-  method         from
-  print.tbl_lazy     
-  print.tbl_sql      
--- Attaching packages ------------------------------------------------- tidyverse 1.3.1 --
-v ggplot2 3.3.6     v purrr   0.3.4
-v tibble  3.1.7     v dplyr   1.0.9
-v tidyr   1.2.0     v stringr 1.4.0
-v readr   2.1.2     v forcats 0.5.1
--- Conflicts ---------------------------------------------------- tidyverse_conflicts() --
-x dplyr::filter() masks stats::filter()
-x dplyr::lag()    masks stats::lag()</code></pre>
-<!-- rnb-output-end -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeSh2cm9vbSlcbmBgYCJ9 -->
-<pre class="r"><code>library(vroom)</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeSh0aWR5dmVyc2UpXG5saWJyYXJ5KGJpZ3JxdWVyeSlcbmBgYCJ9 -->
+<pre class="r"><code>library(tidyverse)
+library(bigrquery)</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
@@ -2977,35 +2960,359 @@ x dplyr::lag()    masks stats::lag()</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
+<div id="initialize-bq-datasets-and-tables" class="section level1" number="1">
+<h1><span class="header-section-number">1</span> Initialize BQ,
+datasets, and tables</h1>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgYmFzaFxud2dldCBcXFxuICAtcU8gbGFyZ2VfZmlsZXMvaW50ZWdyYXRlZF9zYW5nZXJfYnJvYWRfZXNzZW50aWFsaXR5X21hdHJpemVzLnppcCBcXFxuICBodHRwczovL3d3dy5kZXBtYXAub3JnL2Jyb2FkLXNhbmdlci9pbnRlZ3JhdGVkX1Nhbmdlcl9Ccm9hZF9lc3NlbnRpYWxpdHlfbWF0cmljZXNfMjAyMDEyMDEuemlwXG5cbiAgXG51bnppcCBcXFxuICAtbyBcXFxuICAtaiBsYXJnZV9maWxlcy9pbnRlZ3JhdGVkX3Nhbmdlcl9icm9hZF9lc3NlbnRpYWxpdHlfbWF0cml6ZXMuemlwIFxcXG4gIGludGVncmF0ZWRfU2FuZ2VyX0Jyb2FkX2Vzc2VudGlhbGl0eV9tYXRyaWNlc18yMDIwMTIwMS97Q1JJU1BSY2xlYW5SX0ZDLnR4dCxDRVJFU19GQy50eHQsUkVBRE1FLnR4dH0gXFxcbiAgLWQgbGFyZ2VfZmlsZXNcbiAgXG5ybSBfX01BQ09TWFxucm0gbGFyZ2VfZmlsZXMvaW50ZWdyYXRlZF9zYW5nZXJfYnJvYWRfZXNzZW50aWFsaXR5X21hdHJpemVzLnppcFxuXG5gYGAifQ== -->
-<pre class="bash"><code>wget \
-  -qO large_files/integrated_sanger_broad_essentiality_matrizes.zip \
-  https://www.depmap.org/broad-sanger/integrated_Sanger_Broad_essentiality_matrices_20201201.zip
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYnFfYXV0aCgpXG5cbmJxX2NyZWF0ZSA9IGZ1bmN0aW9uKFxuICAgIG9ial90eXBlLCBcbiAgICBwcm9qZWN0X25hbWU9XCJcIiwgXG4gICAgZGF0YXNldF9uYW1lPVwiXCIsIFxuICAgIHRhYmxlX25hbWU9XCJcIlxuICApXG57XG4gICMgb2JqX3R5cGUgPSBcInRhYmxlXCJcbiAgIyBwcm9qZWN0ID0gXCJrYXRhbmEtcHJvdmlkZW5jZVwiXG4gICMgZGF0YXNldF9uYW1lID0gZGF0YXNldF9icVxuICAjIHRhYmxlX25hbWUgPSBcInRlc3RcIlxuICBcbiAgcHJpbnQob2JqX3R5cGUpXG4gIHByaW50KHByb2plY3RfbmFtZSlcbiAgcHJpbnQoZGF0YXNldF9uYW1lKVxuICBwcmludCh0YWJsZV9uYW1lKVxuICBcbiAgcHJpbnQodHlwZW9mKGRhdGFzZXRfbmFtZSkpXG4gIHByaW50KHR5cGVvZih0YWJsZV9uYW1lKSlcbiAgXG4gIGlmIChvYmpfdHlwZSA9PSBcImRhdGFzZXRcIilcbiAge1xuICAgIHByaW50KFwiZG9pbmcgZGF0YXNldFwiKVxuICAgIGRhdGFzZXRfYnEgPSBicV9kYXRhc2V0KHByb2plY3RfbmFtZSwgZGF0YXNldF9uYW1lKVxuICAgIHByaW50KGRhdGFzZXRfYnEpXG5cbiAgICBpZiAoYnFfZGF0YXNldF9leGlzdHMoZGF0YXNldF9icSkpXG4gICAge1xuICAgICAgcHJpbnQoXCJkZWxldGluZyBkYXRhc2V0XCIpXG4gICAgICBicV9kYXRhc2V0X2RlbGV0ZShkYXRhc2V0X2JxLCBkZWxldGVfY29udGVudHMgPSBUKVxuICAgIH1cbiAgICBcbiAgICBicV9kYXRhc2V0X2NyZWF0ZShkYXRhc2V0X2JxKVxuICAgIFxuICAgIHJldHVybihkYXRhc2V0X2JxKVxuICAgIFxuICB9IGVsc2UgaWYob2JqX3R5cGUgPT0gXCJ0YWJsZVwiKVxuICB7XG4gICAgcHJpbnQoXCJkb2luZyB0YWJsZVwiKVxuICAgIHRhYmxlX2JxID0gYnFfdGFibGUoZGF0YXNldF9uYW1lLCB0YWJsZV9uYW1lKVxuICAgIFxuICAgIGlmIChicV90YWJsZV9leGlzdHModGFibGVfYnEpKVxuICAgIHtcbiAgICAgIGJxX3RhYmxlX2RlbGV0ZSh0YWJsZV9icSlcbiAgICB9XG4gICAgXG4gICAgYnFfdGFibGVfY3JlYXRlKHRhYmxlX2JxKVxuICAgIFxuICAgIHJldHVybih0YWJsZV9icSlcbiAgICBcbiAgfVxufVxuXG5wcm9qZWN0X25hbWUgPSBcInNvbWUtb3MtYmlvLWRhdGFcIlxuZGF0YXNldF9uYW1lID0gXCJkZXBtYXBcIlxuXG5kYXRhc2V0X2JxID0gYnFfY3JlYXRlKFwiZGF0YXNldFwiLCBwcm9qZWN0X25hbWUsIGRhdGFzZXRfbmFtZSlcbmBgYCJ9 -->
+<pre class="r"><code>bq_auth()
 
+bq_create = function(
+    obj_type, 
+    project_name=&quot;&quot;, 
+    dataset_name=&quot;&quot;, 
+    table_name=&quot;&quot;
+  )
+{
+  # obj_type = &quot;table&quot;
+  # project = &quot;katana-providence&quot;
+  # dataset_name = dataset_bq
+  # table_name = &quot;test&quot;
   
-unzip \
-  -o \
-  -j large_files/integrated_sanger_broad_essentiality_matrizes.zip \
-  integrated_Sanger_Broad_essentiality_matrices_20201201/{CRISPRcleanR_FC.txt,CERES_FC.txt,README.txt} \
-  -d large_files
+  print(obj_type)
+  print(project_name)
+  print(dataset_name)
+  print(table_name)
   
-rm __MACOSX
-rm large_files/integrated_sanger_broad_essentiality_matrizes.zip
+  print(typeof(dataset_name))
+  print(typeof(table_name))
+  
+  if (obj_type == &quot;dataset&quot;)
+  {
+    print(&quot;doing dataset&quot;)
+    dataset_bq = bq_dataset(project_name, dataset_name)
+    print(dataset_bq)
+
+    if (bq_dataset_exists(dataset_bq))
+    {
+      print(&quot;deleting dataset&quot;)
+      bq_dataset_delete(dataset_bq, delete_contents = T)
+    }
+    
+    bq_dataset_create(dataset_bq)
+    
+    return(dataset_bq)
+    
+  } else if(obj_type == &quot;table&quot;)
+  {
+    print(&quot;doing table&quot;)
+    table_bq = bq_table(dataset_name, table_name)
+    
+    if (bq_table_exists(table_bq))
+    {
+      bq_table_delete(table_bq)
+    }
+    
+    bq_table_create(table_bq)
+    
+    return(table_bq)
+    
+  }
+}
+
+project_name = &quot;some-os-bio-data&quot;
+dataset_name = &quot;depmap&quot;
+
+dataset_bq = bq_create(&quot;dataset&quot;, project_name, dataset_name)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+<div id="load-gene-dependencies" class="section level1" number="2">
+<h1><span class="header-section-number">2</span> Load Gene
+Dependencies</h1>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc2FuZ2VyX2Vzc2VudGlhbGl0eV93aWRlID0gXG4gIHJlYWRfdHN2KFxuICAgIFwibGFyZ2VfZmlsZXMvQ1JJU1BSY2xlYW5SX0ZDLnR4dFwiLFxuICAgIG5fbWF4ID0gSW5mXG4gICkgJT4lIFxuICByZW5hbWUoaGduY19uYW1lPVwiLi4uMVwiKVxuXG5icm9hZF9lc3NlbnRpYWxpdHlfd2lkZSA9IFxuICByZWFkX3RzdihcbiAgICBcImxhcmdlX2ZpbGVzL0NFUkVTX0ZDLnR4dFwiLFxuICAgIG5fbWF4ID0gSW5mXG4gICkgJT4lIFxuICByZW5hbWUoaGduY19uYW1lPVwiLi4uMVwiKVxuYGBgIn0= -->
+<pre class="r"><code>sanger_essentiality_wide = 
+  read_tsv(
+    &quot;large_files/CRISPRcleanR_FC.txt&quot;,
+    n_max = Inf
+  ) %&gt;% 
+  rename(hgnc_name=&quot;...1&quot;)
+
+broad_essentiality_wide = 
+  read_tsv(
+    &quot;large_files/CERES_FC.txt&quot;,
+    n_max = Inf
+  ) %&gt;% 
+  rename(hgnc_name=&quot;...1&quot;)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+<div id="wide-to-long" class="section level1" number="3">
+<h1><span class="header-section-number">3</span> Wide to Long</h1>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc2FuZ2VyX2Vzc2VudGlhbGl0eV9sb25nID0gXG4gIHNhbmdlcl9lc3NlbnRpYWxpdHlfd2lkZSAlPiUgXG4gIHBpdm90X2xvbmdlcihcbiAgICBjb2xzID0gYygtaGduY19uYW1lKSwgXG4gICAgbmFtZXNfdG8gPSBcImRlcG1hcF9pZFwiLFxuICAgIHZhbHVlc190byA9IFwiZGVwZW5kZW5jeVwiXG4gIClcblxuXG5icm9hZF9lc3NlbnRpYWxpdHlfbG9uZyA9IFxuICBzYW5nZXJfZXNzZW50aWFsaXR5X3dpZGUgJT4lIFxuICBwaXZvdF9sb25nZXIoXG4gICAgY29scyA9IGMoLWhnbmNfbmFtZSksIFxuICAgIG5hbWVzX3RvID0gXCJkZXBtYXBfaWRcIixcbiAgICB2YWx1ZXNfdG8gPSBcImRlcGVuZGVuY3lcIlxuICApXG5cbnJtKGFjaGlsbGVzX2RlcGVuZGVuY3lfd2lkZSlcbnJtKGJyb2FkX2Vzc2VudGlhbGl0eV93aWRlKVxuZ2MoKVxuXG5gYGAifQ== -->
+<pre class="r"><code>sanger_essentiality_long = 
+  sanger_essentiality_wide %&gt;% 
+  pivot_longer(
+    cols = c(-hgnc_name), 
+    names_to = &quot;depmap_id&quot;,
+    values_to = &quot;dependency&quot;
+  )
+
+
+broad_essentiality_long = 
+  sanger_essentiality_wide %&gt;% 
+  pivot_longer(
+    cols = c(-hgnc_name), 
+    names_to = &quot;depmap_id&quot;,
+    values_to = &quot;dependency&quot;
+  )
+
+rm(achilles_dependency_wide)
+rm(broad_essentiality_wide)
+gc()
 </code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiQXJjaGl2ZTogIGxhcmdlX2ZpbGVzL2ludGVncmF0ZWRfc2FuZ2VyX2Jyb2FkX2Vzc2VudGlhbGl0eV9tYXRyaXplcy56aXBcbiAgaW5mbGF0aW5nOiBsYXJnZV9maWxlcy9DUklTUFJjbGVhblJfRkMudHh0ICBcbiAgaW5mbGF0aW5nOiBsYXJnZV9maWxlcy9SRUFETUUudHh0ICBcbiAgaW5mbGF0aW5nOiBsYXJnZV9maWxlcy9DRVJFU19GQy50eHQgIFxuIn0= -->
-<pre><code>Archive:  large_files/integrated_sanger_broad_essentiality_matrizes.zip
-  inflating: large_files/CRISPRcleanR_FC.txt  
-  inflating: large_files/README.txt  
-  inflating: large_files/CERES_FC.txt  </code></pre>
-<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+<div id="load-metadata" class="section level1" number="4">
+<h1><span class="header-section-number">4</span> Load Metadata</h1>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYWNoaWxsZXNfbWV0YWRhdGEgPSByZWFkX2NzdihcImxhcmdlX2ZpbGVzL0FjaGlsbGVzL0FjaGlsbGVzX21ldGFkYXRhLmNzdlwiKVxuYGBgIn0= -->
+<pre class="r"><code>achilles_metadata = read_csv(&quot;large_files/Achilles/Achilles_metadata.csv&quot;)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+<div id="bq-fields" class="section level1" number="5">
+<h1><span class="header-section-number">5</span> BQ Fields</h1>
+<div id="essentiality" class="section level2" number="5.1">
+<h2><span class="header-section-number">5.1</span> Essentiality</h2>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZXNzZW50aWFsaXR5X2ZpZWxkcyA9IGxpc3QoXG4gIGJxX2ZpZWxkKFxuICAgIG5hbWUgPSBcIkNlbGxfTGluZVwiLFxuICAgIHR5cGUgPSBcIlNUUklOR1wiLFxuICAgIGRlc2NyaXB0aW9uID0gXCJEZXBNYXAgSUQgKEJyb2FkIElEKVwiXG4gICksXG4gIGJxX2ZpZWxkKFxuICAgIG5hbWUgPSBcIkhVR09cIixcbiAgICB0eXBlID0gXCJTVFJJTkdcIixcbiAgICBkZXNjcmlwdGlvbiA9IFwiSFVHTyBIR05DIEdlbmUgSUQuXCJcbiAgKSxcbiAgYnFfZmllbGQoXG4gICAgbmFtZSA9IFwiRW50cmV6XCIsXG4gICAgdHlwZSA9IFwiU1RSSU5HXCIsXG4gICAgZGVzY3JpcHRpb24gPSBcIkVudHJleiBHZW5lIElELlwiXG4gICksXG4gIGJxX2ZpZWxkKFxuICAgIG5hbWUgPSBcIkRlcGVuZGVuY3lcIixcbiAgICB0eXBlID0gXCJGTE9BVFwiLFxuICAgIGRlc2NyaXB0aW9uID0gXCJQcm9iYWJpbGl0eSB0aGF0IGtub2NraW5nIG91dCB0aGUgZ2VuZSBoYXMgYSByZWFsIGRlcGxldGlvbiBlZmZlY3QgdXNpbmcgZ2VuZV9lZmZlY3QuXCJcbiAgKVxuKVxuXG5gYGAifQ== -->
+<pre class="r"><code>essentiality_fields = list(
+  bq_field(
+    name = &quot;Cell_Line&quot;,
+    type = &quot;STRING&quot;,
+    description = &quot;DepMap ID (Broad ID)&quot;
+  ),
+  bq_field(
+    name = &quot;HUGO&quot;,
+    type = &quot;STRING&quot;,
+    description = &quot;HUGO HGNC Gene ID.&quot;
+  ),
+  bq_field(
+    name = &quot;Entrez&quot;,
+    type = &quot;STRING&quot;,
+    description = &quot;Entrez Gene ID.&quot;
+  ),
+  bq_field(
+    name = &quot;Dependency&quot;,
+    type = &quot;FLOAT&quot;,
+    description = &quot;Probability that knocking out the gene has a real depletion effect using gene_effect.&quot;
+  )
+)
+</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+<div id="metadata" class="section level2" number="5.2">
+<h2><span class="header-section-number">5.2</span> Metadata</h2>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubWV0YWRhdGFfZmllbGRzID0gbGlzdChcbiAgYnFfZmllbGQoXG4gICAgbmFtZSA9IFwiRGVwTWFwX0lEXCIsXG4gICAgdHlwZSA9IFwiU1RSSU5HXCIsXG4gICAgZGVzY3JpcHRpb24gPSBcIkNlbGwgTGluZSwgQnJvYWQgSURcIlxuICApLFxuICBicV9maWVsZChcbiAgICBuYW1lID0gXCJBY2hpbGxlc19uX3JlcGxpY2F0ZXNcIixcbiAgICB0eXBlID0gXCJJTlRFR0VSXCIsXG4gICAgZGVzY3JpcHRpb24gPSBcIk51bWJlciBvZiByZXBsaWNhdGVzIHVzZWQgaW4gQWNoaWxsZXMgQ1JJU1BSIHNjcmVlbiBwYXNzaW5nIFFDXCJcbiAgICApLFxuICBicV9maWVsZChcbiAgICBuYW1lID0gXCJjZWxsX2xpbmVfTk5NRFwiLFxuICAgIHR5cGUgPSBcIkZMT0FUXCIsXG4gICAgZGVzY3JpcHRpb24gPSBcIkRpZmZlcmVuY2UgaW4gdGhlIG1lYW5zIG9mIHBvc2l0aXZlIGFuZCBuZWdhdGl2ZSBjb250cm9scyBub3JtYWxpemVkIGJ5IHRoZSBzdGFuZGFyZCBkZXZpYXRpb24gb2YgdGhlIG5lZ2F0aXZlIGNvbnRyb2wgZGlzdHJpYnV0aW9uLlwiXG4gICAgKSxcbiAgIyBicV9maWVsZChcbiAgIyAgIG5hbWUgPSBcImN1bHR1cmVfdHlwZVwiLFxuICAjICAgdHlwZSA9IFwiU1RSSU5HXCIsXG4gICMgICBkZXNjcmlwdGlvbiA9IFwiR3Jvd3RoIHBhdHRlcm4gb2YgY2VsbCBsaW5lIChBZGhlcmVudCwgU3VzcGVuc2lvbiwgTWl4ZWQgYWRoZXJlbnQgYW5kIHN1c3BlbnNpb24sIDNELCBvciBBZGhlcmVudCAocmVxdWlyZXMgbGFtaW5pbiBjb2F0aW5nKS5cIlxuICAjICAgKSxcbiAgYnFfZmllbGQoXG4gICAgbmFtZSA9IFwiY3VsdHVyZV9tZWRpdW1cIixcbiAgICB0eXBlID0gXCJTVFJJTkdcIixcbiAgICBkZXNjcmlwdGlvbiA9IFwiTWVkaXVtIHVzZWQgdG8gZ3JvdyBjZWxsIGxpbmVcIlxuICAgICksXG4gIGJxX2ZpZWxkKFxuICAgIG5hbWUgPSBcImNhczlfYWN0aXZpdHlcIixcbiAgICB0eXBlID0gXCJGTE9BVFwiLFxuICAgIGRlc2NyaXB0aW9uID0gXCJQZXJjZW50YWdlIG9mIGNlbGxzIHJlbWFpbmluZyBHRlAgbmVnYXRpdmUgb24gZGF5cyAxMi0xNCBvZiBjYXM5IGFjdGl2aXR5IGFzc2F5IGFzIG1lYXN1cmVkIGJ5IEZBQ3NcIlxuICApXG4pXG5cbmBgYCJ9 -->
+<pre class="r"><code>metadata_fields = list(
+  bq_field(
+    name = &quot;DepMap_ID&quot;,
+    type = &quot;STRING&quot;,
+    description = &quot;Cell Line, Broad ID&quot;
+  ),
+  bq_field(
+    name = &quot;Achilles_n_replicates&quot;,
+    type = &quot;INTEGER&quot;,
+    description = &quot;Number of replicates used in Achilles CRISPR screen passing QC&quot;
+    ),
+  bq_field(
+    name = &quot;cell_line_NNMD&quot;,
+    type = &quot;FLOAT&quot;,
+    description = &quot;Difference in the means of positive and negative controls normalized by the standard deviation of the negative control distribution.&quot;
+    ),
+  # bq_field(
+  #   name = &quot;culture_type&quot;,
+  #   type = &quot;STRING&quot;,
+  #   description = &quot;Growth pattern of cell line (Adherent, Suspension, Mixed adherent and suspension, 3D, or Adherent (requires laminin coating).&quot;
+  #   ),
+  bq_field(
+    name = &quot;culture_medium&quot;,
+    type = &quot;STRING&quot;,
+    description = &quot;Medium used to grow cell line&quot;
+    ),
+  bq_field(
+    name = &quot;cas9_activity&quot;,
+    type = &quot;FLOAT&quot;,
+    description = &quot;Percentage of cells remaining GFP negative on days 12-14 of cas9 activity assay as measured by FACs&quot;
+  )
+)
+</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+</div>
+<div id="upload" class="section level1" number="6">
+<h1><span class="header-section-number">6</span> Upload</h1>
+<div id="metadata-1" class="section level2" number="6.1">
+<h2><span class="header-section-number">6.1</span> Metadata</h2>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYnFfcGVyZm9ybV91cGxvYWQoXG4gIGJxX3RhYmxlKGRhdGFzZXRfYnEsIFwiYWNoaWxsZXNfbWV0YWRhdGFcIiksXG4gIHZhbHVlcyA9IGFjaGlsbGVzX21ldGFkYXRhLFxuICBjcmVhdGVfZGlzcG9zaXRpb24gPSBcIkNSRUFURV9JRl9ORUVERURcIixcbiAgd3JpdGVfZGlzcG9zaXRpb24gPSBcIldSSVRFX1RSVU5DQVRFXCIsXG4gIGZpZWxkcyA9IGJxX2ZpZWxkcyhtZXRhZGF0YV9maWVsZHMpXG4pXG5cbmBgYCJ9 -->
+<pre class="r"><code>bq_perform_upload(
+  bq_table(dataset_bq, &quot;achilles_metadata&quot;),
+  values = achilles_metadata,
+  create_disposition = &quot;CREATE_IF_NEEDED&quot;,
+  write_disposition = &quot;WRITE_TRUNCATE&quot;,
+  fields = bq_fields(metadata_fields)
+)
+</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+<div id="sanger" class="section level2" number="6.2">
+<h2><span class="header-section-number">6.2</span> Sanger</h2>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYnFfcGVyZm9ybV91cGxvYWQoXG4gIGJxX3RhYmxlKGRhdGFzZXRfYnEsIFwic2FuZ2VyX2ludGVncmF0ZWRfZXNzZW50aWFsaXR5XCIpLFxuICB2YWx1ZXMgPSBhY2hpbGxlc19kZXBlbmRlbmN5X2xvbmcsXG4gIGNyZWF0ZV9kaXNwb3NpdGlvbiA9IFwiQ1JFQVRFX0lGX05FRURFRFwiLFxuICB3cml0ZV9kaXNwb3NpdGlvbiA9IFwiV1JJVEVfVFJVTkNBVEVcIixcbiAgZmllbGRzID0gYWNoaWxsZXNfZGVwZW5kZW5jeV9maWVsZHNcbilcbmBgYCJ9 -->
+<pre class="r"><code>bq_perform_upload(
+  bq_table(dataset_bq, &quot;sanger_integrated_essentiality&quot;),
+  values = achilles_dependency_long,
+  create_disposition = &quot;CREATE_IF_NEEDED&quot;,
+  write_disposition = &quot;WRITE_TRUNCATE&quot;,
+  fields = achilles_dependency_fields
+)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+<div id="broad" class="section level2" number="6.3">
+<h2><span class="header-section-number">6.3</span> Broad</h2>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYnFfcGVyZm9ybV91cGxvYWQoXG4gIGJxX3RhYmxlKGRhdGFzZXRfYnEsIFwiYnJvYWRfaW50ZWdyYXRlZF9lc3NlbnRpYWxpdHlcIiksXG4gIHZhbHVlcyA9IGNyaXNwcl9kZXBlbmRlbmN5X2xvbmcsXG4gIGNyZWF0ZV9kaXNwb3NpdGlvbiA9IFwiQ1JFQVRFX0lGX05FRURFRFwiLFxuICB3cml0ZV9kaXNwb3NpdGlvbiA9IFwiV1JJVEVfVFJVTkNBVEVcIixcbiAgZmllbGRzID0gYWNoaWxsZXNfZGVwZW5kZW5jeV9maWVsZHNcbilcbmBgYCJ9 -->
+<pre class="r"><code>bq_perform_upload(
+  bq_table(dataset_bq, &quot;broad_integrated_essentiality&quot;),
+  values = crispr_dependency_long,
+  create_disposition = &quot;CREATE_IF_NEEDED&quot;,
+  write_disposition = &quot;WRITE_TRUNCATE&quot;,
+  fields = achilles_dependency_fields
+)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+</div>
+<div id="upload-diagnostics" class="section level1" number="7">
+<h1><span class="header-section-number">7</span> Upload Diagnostics</h1>
+<pre><code>N = 10001
+M = 1000
+
+df = tibble(
+  A = 1:N,
+  B = runif(N),
+  C = replicate(N, paste(sample(letters, 10, replace=T), collapse=&quot;&quot;)),
+  D = runif(N),
+  E = replicate(N, paste(sample(LETTERS, 10, replace=T), collapse=&quot;&quot;))
+)
+
+df = 
+  matrix(rnorm(N*M), nrow = N) %&gt;% 
+  data.frame() %&gt;% 
+  set_names(replicate(M, paste(sample(LETTERS, 6, replace=T), collapse=&quot;&quot;)))
+
+dataset_bq = bq_create(&quot;dataset&quot;, project_name, dataset_name)
+
+bq_perform_upload(
+  bq_table(dataset_bq, &quot;test2&quot;),
+  values = df,
+  create_disposition = &quot;CREATE_IF_NEEDED&quot;,
+  write_disposition = &quot;WRITE_TRUNCATE&quot;,
+  page_size = 1000
+)
+
+bq_table_upload(
+  bq_table(dataset_bq, &quot;test2&quot;),
+  values = achilles_dependency_long
+)
+</code></pre>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZGVwZW5kZW5jeSA9IFxuICBmdWxsX2pvaW4oXG4gICAgYWNoaWxsZXNfZGVwZW5kZW5jeV9sb25nLFxuICAgIGNyaXNwcl9kZXBlbmRlbmN5X2xvbmcsXG4gICAgYnkgPSBjKFwiQ2VsbF9MaW5lXCIsIFwiSFVHT1wiLCBcIkVudHJlelwiKSxcbiAgICBzdWZmaXggPSBjKFwiX2FjaGlsbGVzXCIsIFwiX2NyaXNwclwiKVxuICApXG5cbndyaXRlX3RzdihhY2hpbGxlc19kZXBlbmRlbmN5X2xvbmcsIFwibGFyZ2VfZmlsZXMvQWNoaWxsZXMvYWNoaWxsZXNfZGVwZW5kZW5jeV9sb25nLnRzdlwiKVxuXG53cml0ZV90c3YoY3Jpc3ByX2RlcGVuZGVuY3lfbG9uZywgXCJsYXJnZV9maWxlcy9BY2hpbGxlcy9jcmlzcHJfZGVwZW5kZW5jeV9sb25nLnRzdlwiKVxuXG53cml0ZV90c3YoZGVwZW5kZW5jeSwgXCJsYXJnZV9maWxlcy9BY2hpbGxlcy9kZXBlbmRlbmN5X2xvbmcudHN2XCIpXG5cbmBgYCJ9 -->
+<pre class="r"><code>dependency = 
+  full_join(
+    achilles_dependency_long,
+    crispr_dependency_long,
+    by = c(&quot;Cell_Line&quot;, &quot;HUGO&quot;, &quot;Entrez&quot;),
+    suffix = c(&quot;_achilles&quot;, &quot;_crispr&quot;)
+  )
+
+write_tsv(achilles_dependency_long, &quot;large_files/Achilles/achilles_dependency_long.tsv&quot;)
+
+write_tsv(crispr_dependency_long, &quot;large_files/Achilles/crispr_dependency_long.tsv&quot;)
+
+write_tsv(dependency, &quot;large_files/Achilles/dependency_long.tsv&quot;)
+</code></pre>
+<!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuICBjb3IudGVzdChcbiAgICBkZXBlbmRlbmN5JERlcGVuZGVuY3lfYWNoaWxsZXMsIGRlcGVuZGVuY3kkRGVwZW5kZW5jeV9jcmlzcHIsIFxuICAgIG1ldGhvZCA9IFwicGVhcnNvblwiLFxuICAgIG5hLnJtPVRcbiAgKVxuXG5cbiAgIyBjb3IudGVzdChcbiAgIyAgIGRlcGVuZGVuY3kkRGVwZW5kZW5jeV9hY2hpbGxlcywgZGVwZW5kZW5jeSREZXBlbmRlbmN5X2NyaXNwciwgXG4gICMgICBtZXRob2QgPSBcImtlbmRhbGxcIixcbiAgIyAgIG5hLnJtPVRcbiAgIyApXG5cbnEgPSBkZXBlbmRlbmN5ICU+JSBzYW1wbGVfbigxZTQpXG5cbiBjb3IudGVzdChcbiAgIHEkRGVwZW5kZW5jeV9hY2hpbGxlcywgcSREZXBlbmRlbmN5X2NyaXNwcixcbiAgIG1ldGhvZCA9IFwia2VuZGFsbFwiLFxuICAgbmEucm09VFxuIClcbmBgYCJ9 -->
+<pre class="r"><code>  cor.test(
+    dependency$Dependency_achilles, dependency$Dependency_crispr, 
+    method = &quot;pearson&quot;,
+    na.rm=T
+  )
 
-<div id="rmd-source-code">LS0tCnRpdGxlOiAiRGVwbWFwIHBhY2thZ2UgdGVzdCIKYXV0aG9yOiAiQXJpZWwgQmFsdGVyIgpkYXRlOiAiYHIgZm9ybWF0KFN5cy50aW1lKCksICclZCAlQiwgJVknKWAiCm91dHB1dDoKICBodG1sX25vdGVib29rOgogICAgbnVtYmVyX3NlY3Rpb25zOiB5ZXMKICAgIHRvYzogeWVzCiAgICB0b2NfZmxvYXQ6CiAgICAgIGNvbGxhcHNlZDogeWVzCiAgICB0aGVtZTogbHVtZW4KICAgIGZpZ193aWR0aDogOAogICAgZmlnX2hlaWdodDogNgogICAgZmlnX2NhcHRpb246IHllcwogICAgY29kZV9mb2xkaW5nOiBoaWRlCi0tLQoKCmBgYHtyfQpsaWJyYXJ5KHJtYXJrZG93bikKbGlicmFyeSh0aWR5dmVyc2UpCmxpYnJhcnkodnJvb20pCmBgYAoKCmBgYHtyfQprbml0cjo6b3B0c19jaHVuayRzZXQoCiAgYXR0ci5zb3VyY2U9Jy5udW1iZXJMaW5lcycsCiAgYXR0ci5vdXRwdXQ9J3N0eWxlPSJtYXgtaGVpZ2h0OiAzMDBweDsiJwopCmBgYAoKYGBge2Jhc2h9CndnZXQgXAogIC1xTyBsYXJnZV9maWxlcy9pbnRlZ3JhdGVkX3Nhbmdlcl9icm9hZF9lc3NlbnRpYWxpdHlfbWF0cml6ZXMuemlwIFwKICBodHRwczovL3d3dy5kZXBtYXAub3JnL2Jyb2FkLXNhbmdlci9pbnRlZ3JhdGVkX1Nhbmdlcl9Ccm9hZF9lc3NlbnRpYWxpdHlfbWF0cmljZXNfMjAyMDEyMDEuemlwCgogIAp1bnppcCBcCiAgLW8gXAogIC1qIGxhcmdlX2ZpbGVzL2ludGVncmF0ZWRfc2FuZ2VyX2Jyb2FkX2Vzc2VudGlhbGl0eV9tYXRyaXplcy56aXAgXAogIGludGVncmF0ZWRfU2FuZ2VyX0Jyb2FkX2Vzc2VudGlhbGl0eV9tYXRyaWNlc18yMDIwMTIwMS97Q1JJU1BSY2xlYW5SX0ZDLnR4dCxDRVJFU19GQy50eHQsUkVBRE1FLnR4dH0gXAogIC1kIGxhcmdlX2ZpbGVzCiAgCnJtIC1yZiBfX01BQ09TWApybSBsYXJnZV9maWxlcy9pbnRlZ3JhdGVkX3Nhbmdlcl9icm9hZF9lc3NlbnRpYWxpdHlfbWF0cml6ZXMuemlwCgpgYGAKCgoK</div>
+
+  # cor.test(
+  #   dependency$Dependency_achilles, dependency$Dependency_crispr, 
+  #   method = &quot;kendall&quot;,
+  #   na.rm=T
+  # )
+
+q = dependency %&gt;% sample_n(1e4)
+
+ cor.test(
+   q$Dependency_achilles, q$Dependency_crispr,
+   method = &quot;kendall&quot;,
+   na.rm=T
+ )</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZGVwZW5kZW5jeSAlPiUgXG4gIHNhbXBsZV9uKDFlMykgJT4lIFxuICBwbG90KGRlcGVuZGVuY3lfYWNoaWxsZXMgfiBkZXBlbmRlbmN5X2NyaXNwcilcbmBgYCJ9 -->
+<pre class="r"><code>dependency %&gt;% 
+  sample_n(1e3) %&gt;% 
+  plot(dependency_achilles ~ dependency_crispr)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+</div>
+
+<div id="rmd-source-code">LS0tCnRpdGxlOiAiVXBsb2FkIERlcG1hcCIKYXV0aG9yOiAiQXJpZWwgQmFsdGVyIgpkYXRlOiAiYHIgZm9ybWF0KFN5cy50aW1lKCksICclZCAlQiwgJVknKWAiCm91dHB1dDoKICBodG1sX25vdGVib29rOgogICAgbnVtYmVyX3NlY3Rpb25zOiB5ZXMKICAgIHRvYzogeWVzCiAgICB0b2NfZmxvYXQ6CiAgICAgIGNvbGxhcHNlZDogeWVzCiAgICB0aGVtZTogbHVtZW4KICAgIGZpZ193aWR0aDogOAogICAgZmlnX2hlaWdodDogNgogICAgZmlnX2NhcHRpb246IHllcwogICAgY29kZV9mb2xkaW5nOiBoaWRlCi0tLQoKCmBgYHtyfQpsaWJyYXJ5KHRpZHl2ZXJzZSkKbGlicmFyeShiaWdycXVlcnkpCmBgYAoKCmBgYHtyfQprbml0cjo6b3B0c19jaHVuayRzZXQoCiAgYXR0ci5zb3VyY2U9Jy5udW1iZXJMaW5lcycsCiAgYXR0ci5vdXRwdXQ9J3N0eWxlPSJtYXgtaGVpZ2h0OiAzMDBweDsiJwopCmBgYAoKCiMgSW5pdGlhbGl6ZSBCUSwgZGF0YXNldHMsIGFuZCB0YWJsZXMKYGBge3J9CmJxX2F1dGgoKQoKYnFfY3JlYXRlID0gZnVuY3Rpb24oCiAgICBvYmpfdHlwZSwgCiAgICBwcm9qZWN0X25hbWU9IiIsIAogICAgZGF0YXNldF9uYW1lPSIiLCAKICAgIHRhYmxlX25hbWU9IiIKICApCnsKICAjIG9ial90eXBlID0gInRhYmxlIgogICMgcHJvamVjdCA9ICJrYXRhbmEtcHJvdmlkZW5jZSIKICAjIGRhdGFzZXRfbmFtZSA9IGRhdGFzZXRfYnEKICAjIHRhYmxlX25hbWUgPSAidGVzdCIKICAKICBwcmludChvYmpfdHlwZSkKICBwcmludChwcm9qZWN0X25hbWUpCiAgcHJpbnQoZGF0YXNldF9uYW1lKQogIHByaW50KHRhYmxlX25hbWUpCiAgCiAgcHJpbnQodHlwZW9mKGRhdGFzZXRfbmFtZSkpCiAgcHJpbnQodHlwZW9mKHRhYmxlX25hbWUpKQogIAogIGlmIChvYmpfdHlwZSA9PSAiZGF0YXNldCIpCiAgewogICAgcHJpbnQoImRvaW5nIGRhdGFzZXQiKQogICAgZGF0YXNldF9icSA9IGJxX2RhdGFzZXQocHJvamVjdF9uYW1lLCBkYXRhc2V0X25hbWUpCiAgICBwcmludChkYXRhc2V0X2JxKQoKICAgIGlmIChicV9kYXRhc2V0X2V4aXN0cyhkYXRhc2V0X2JxKSkKICAgIHsKICAgICAgcHJpbnQoImRlbGV0aW5nIGRhdGFzZXQiKQogICAgICBicV9kYXRhc2V0X2RlbGV0ZShkYXRhc2V0X2JxLCBkZWxldGVfY29udGVudHMgPSBUKQogICAgfQogICAgCiAgICBicV9kYXRhc2V0X2NyZWF0ZShkYXRhc2V0X2JxKQogICAgCiAgICByZXR1cm4oZGF0YXNldF9icSkKICAgIAogIH0gZWxzZSBpZihvYmpfdHlwZSA9PSAidGFibGUiKQogIHsKICAgIHByaW50KCJkb2luZyB0YWJsZSIpCiAgICB0YWJsZV9icSA9IGJxX3RhYmxlKGRhdGFzZXRfbmFtZSwgdGFibGVfbmFtZSkKICAgIAogICAgaWYgKGJxX3RhYmxlX2V4aXN0cyh0YWJsZV9icSkpCiAgICB7CiAgICAgIGJxX3RhYmxlX2RlbGV0ZSh0YWJsZV9icSkKICAgIH0KICAgIAogICAgYnFfdGFibGVfY3JlYXRlKHRhYmxlX2JxKQogICAgCiAgICByZXR1cm4odGFibGVfYnEpCiAgICAKICB9Cn0KCnByb2plY3RfbmFtZSA9ICJzb21lLW9zLWJpby1kYXRhIgpkYXRhc2V0X25hbWUgPSAiZGVwbWFwIgoKZGF0YXNldF9icSA9IGJxX2NyZWF0ZSgiZGF0YXNldCIsIHByb2plY3RfbmFtZSwgZGF0YXNldF9uYW1lKQpgYGAKCiMgTG9hZCBHZW5lIERlcGVuZGVuY2llcwpgYGB7ciwgbGFiZWw9ImxvYWQgd2lkZSB0YWJsZXMifQpzYW5nZXJfZXNzZW50aWFsaXR5X3dpZGUgPSAKICByZWFkX3RzdigKICAgICJsYXJnZV9maWxlcy9DUklTUFJjbGVhblJfRkMudHh0IiwKICAgIG5fbWF4ID0gSW5mCiAgKSAlPiUgCiAgcmVuYW1lKGhnbmNfbmFtZT0iLi4uMSIpCgpicm9hZF9lc3NlbnRpYWxpdHlfd2lkZSA9IAogIHJlYWRfdHN2KAogICAgImxhcmdlX2ZpbGVzL0NFUkVTX0ZDLnR4dCIsCiAgICBuX21heCA9IEluZgogICkgJT4lIAogIHJlbmFtZShoZ25jX25hbWU9Ii4uLjEiKQpgYGAKCiMgV2lkZSB0byBMb25nCmBgYHtyLCBsYWJlbD0id2lkZSB0byBsb25nIn0Kc2FuZ2VyX2Vzc2VudGlhbGl0eV9sb25nID0gCiAgc2FuZ2VyX2Vzc2VudGlhbGl0eV93aWRlICU+JSAKICBwaXZvdF9sb25nZXIoCiAgICBjb2xzID0gYygtaGduY19uYW1lKSwgCiAgICBuYW1lc190byA9ICJkZXBtYXBfaWQiLAogICAgdmFsdWVzX3RvID0gImRlcGVuZGVuY3kiCiAgKQoKCmJyb2FkX2Vzc2VudGlhbGl0eV9sb25nID0gCiAgc2FuZ2VyX2Vzc2VudGlhbGl0eV93aWRlICU+JSAKICBwaXZvdF9sb25nZXIoCiAgICBjb2xzID0gYygtaGduY19uYW1lKSwgCiAgICBuYW1lc190byA9ICJkZXBtYXBfaWQiLAogICAgdmFsdWVzX3RvID0gImRlcGVuZGVuY3kiCiAgKQoKcm0oYWNoaWxsZXNfZGVwZW5kZW5jeV93aWRlKQpybShicm9hZF9lc3NlbnRpYWxpdHlfd2lkZSkKZ2MoKQoKYGBgCgojIExvYWQgTWV0YWRhdGEKYGBge3IsIGxhYmVsPSJsb2FkIG1ldGFkYXRhIn0KYWNoaWxsZXNfbWV0YWRhdGEgPSByZWFkX2NzdigibGFyZ2VfZmlsZXMvQWNoaWxsZXMvQWNoaWxsZXNfbWV0YWRhdGEuY3N2IikKYGBgCgoKIyBCUSBGaWVsZHMKIyMgRXNzZW50aWFsaXR5CmBgYHtyfQplc3NlbnRpYWxpdHlfZmllbGRzID0gbGlzdCgKICBicV9maWVsZCgKICAgIG5hbWUgPSAiQ2VsbF9MaW5lIiwKICAgIHR5cGUgPSAiU1RSSU5HIiwKICAgIGRlc2NyaXB0aW9uID0gIkRlcE1hcCBJRCAoQnJvYWQgSUQpIgogICksCiAgYnFfZmllbGQoCiAgICBuYW1lID0gIkhVR08iLAogICAgdHlwZSA9ICJTVFJJTkciLAogICAgZGVzY3JpcHRpb24gPSAiSFVHTyBIR05DIEdlbmUgSUQuIgogICksCiAgYnFfZmllbGQoCiAgICBuYW1lID0gIkVudHJleiIsCiAgICB0eXBlID0gIlNUUklORyIsCiAgICBkZXNjcmlwdGlvbiA9ICJFbnRyZXogR2VuZSBJRC4iCiAgKSwKICBicV9maWVsZCgKICAgIG5hbWUgPSAiRGVwZW5kZW5jeSIsCiAgICB0eXBlID0gIkZMT0FUIiwKICAgIGRlc2NyaXB0aW9uID0gIlByb2JhYmlsaXR5IHRoYXQga25vY2tpbmcgb3V0IHRoZSBnZW5lIGhhcyBhIHJlYWwgZGVwbGV0aW9uIGVmZmVjdCB1c2luZyBnZW5lX2VmZmVjdC4iCiAgKQopCgpgYGAKCiMjIE1ldGFkYXRhCmBgYHtyfQptZXRhZGF0YV9maWVsZHMgPSBsaXN0KAogIGJxX2ZpZWxkKAogICAgbmFtZSA9ICJEZXBNYXBfSUQiLAogICAgdHlwZSA9ICJTVFJJTkciLAogICAgZGVzY3JpcHRpb24gPSAiQ2VsbCBMaW5lLCBCcm9hZCBJRCIKICApLAogIGJxX2ZpZWxkKAogICAgbmFtZSA9ICJBY2hpbGxlc19uX3JlcGxpY2F0ZXMiLAogICAgdHlwZSA9ICJJTlRFR0VSIiwKICAgIGRlc2NyaXB0aW9uID0gIk51bWJlciBvZiByZXBsaWNhdGVzIHVzZWQgaW4gQWNoaWxsZXMgQ1JJU1BSIHNjcmVlbiBwYXNzaW5nIFFDIgogICAgKSwKICBicV9maWVsZCgKICAgIG5hbWUgPSAiY2VsbF9saW5lX05OTUQiLAogICAgdHlwZSA9ICJGTE9BVCIsCiAgICBkZXNjcmlwdGlvbiA9ICJEaWZmZXJlbmNlIGluIHRoZSBtZWFucyBvZiBwb3NpdGl2ZSBhbmQgbmVnYXRpdmUgY29udHJvbHMgbm9ybWFsaXplZCBieSB0aGUgc3RhbmRhcmQgZGV2aWF0aW9uIG9mIHRoZSBuZWdhdGl2ZSBjb250cm9sIGRpc3RyaWJ1dGlvbi4iCiAgICApLAogICMgYnFfZmllbGQoCiAgIyAgIG5hbWUgPSAiY3VsdHVyZV90eXBlIiwKICAjICAgdHlwZSA9ICJTVFJJTkciLAogICMgICBkZXNjcmlwdGlvbiA9ICJHcm93dGggcGF0dGVybiBvZiBjZWxsIGxpbmUgKEFkaGVyZW50LCBTdXNwZW5zaW9uLCBNaXhlZCBhZGhlcmVudCBhbmQgc3VzcGVuc2lvbiwgM0QsIG9yIEFkaGVyZW50IChyZXF1aXJlcyBsYW1pbmluIGNvYXRpbmcpLiIKICAjICAgKSwKICBicV9maWVsZCgKICAgIG5hbWUgPSAiY3VsdHVyZV9tZWRpdW0iLAogICAgdHlwZSA9ICJTVFJJTkciLAogICAgZGVzY3JpcHRpb24gPSAiTWVkaXVtIHVzZWQgdG8gZ3JvdyBjZWxsIGxpbmUiCiAgICApLAogIGJxX2ZpZWxkKAogICAgbmFtZSA9ICJjYXM5X2FjdGl2aXR5IiwKICAgIHR5cGUgPSAiRkxPQVQiLAogICAgZGVzY3JpcHRpb24gPSAiUGVyY2VudGFnZSBvZiBjZWxscyByZW1haW5pbmcgR0ZQIG5lZ2F0aXZlIG9uIGRheXMgMTItMTQgb2YgY2FzOSBhY3Rpdml0eSBhc3NheSBhcyBtZWFzdXJlZCBieSBGQUNzIgogICkKKQoKYGBgCgoKCgojIFVwbG9hZAojIyBNZXRhZGF0YQpgYGB7ciwgbGFibGU9Im1ldGFkYXRhIn0KYnFfcGVyZm9ybV91cGxvYWQoCiAgYnFfdGFibGUoZGF0YXNldF9icSwgImFjaGlsbGVzX21ldGFkYXRhIiksCiAgdmFsdWVzID0gYWNoaWxsZXNfbWV0YWRhdGEsCiAgY3JlYXRlX2Rpc3Bvc2l0aW9uID0gIkNSRUFURV9JRl9ORUVERUQiLAogIHdyaXRlX2Rpc3Bvc2l0aW9uID0gIldSSVRFX1RSVU5DQVRFIiwKICBmaWVsZHMgPSBicV9maWVsZHMobWV0YWRhdGFfZmllbGRzKQopCgpgYGAKCiMjIFNhbmdlcgpgYGB7ciwgbGFiZWw9ImFjaGlsbGVzIn0KYnFfcGVyZm9ybV91cGxvYWQoCiAgYnFfdGFibGUoZGF0YXNldF9icSwgInNhbmdlcl9pbnRlZ3JhdGVkX2Vzc2VudGlhbGl0eSIpLAogIHZhbHVlcyA9IGFjaGlsbGVzX2RlcGVuZGVuY3lfbG9uZywKICBjcmVhdGVfZGlzcG9zaXRpb24gPSAiQ1JFQVRFX0lGX05FRURFRCIsCiAgd3JpdGVfZGlzcG9zaXRpb24gPSAiV1JJVEVfVFJVTkNBVEUiLAogIGZpZWxkcyA9IGFjaGlsbGVzX2RlcGVuZGVuY3lfZmllbGRzCikKYGBgCgojIyBCcm9hZApgYGB7ciwgbGFiZWw9ImNyaXNwciJ9CmJxX3BlcmZvcm1fdXBsb2FkKAogIGJxX3RhYmxlKGRhdGFzZXRfYnEsICJicm9hZF9pbnRlZ3JhdGVkX2Vzc2VudGlhbGl0eSIpLAogIHZhbHVlcyA9IGNyaXNwcl9kZXBlbmRlbmN5X2xvbmcsCiAgY3JlYXRlX2Rpc3Bvc2l0aW9uID0gIkNSRUFURV9JRl9ORUVERUQiLAogIHdyaXRlX2Rpc3Bvc2l0aW9uID0gIldSSVRFX1RSVU5DQVRFIiwKICBmaWVsZHMgPSBhY2hpbGxlc19kZXBlbmRlbmN5X2ZpZWxkcwopCmBgYAoKCiMgVXBsb2FkIERpYWdub3N0aWNzCmBgYHt9Ck4gPSAxMDAwMQpNID0gMTAwMAoKZGYgPSB0aWJibGUoCiAgQSA9IDE6TiwKICBCID0gcnVuaWYoTiksCiAgQyA9IHJlcGxpY2F0ZShOLCBwYXN0ZShzYW1wbGUobGV0dGVycywgMTAsIHJlcGxhY2U9VCksIGNvbGxhcHNlPSIiKSksCiAgRCA9IHJ1bmlmKE4pLAogIEUgPSByZXBsaWNhdGUoTiwgcGFzdGUoc2FtcGxlKExFVFRFUlMsIDEwLCByZXBsYWNlPVQpLCBjb2xsYXBzZT0iIikpCikKCmRmID0gCiAgbWF0cml4KHJub3JtKE4qTSksIG5yb3cgPSBOKSAlPiUgCiAgZGF0YS5mcmFtZSgpICU+JSAKICBzZXRfbmFtZXMocmVwbGljYXRlKE0sIHBhc3RlKHNhbXBsZShMRVRURVJTLCA2LCByZXBsYWNlPVQpLCBjb2xsYXBzZT0iIikpKQoKZGF0YXNldF9icSA9IGJxX2NyZWF0ZSgiZGF0YXNldCIsIHByb2plY3RfbmFtZSwgZGF0YXNldF9uYW1lKQoKYnFfcGVyZm9ybV91cGxvYWQoCiAgYnFfdGFibGUoZGF0YXNldF9icSwgInRlc3QyIiksCiAgdmFsdWVzID0gZGYsCiAgY3JlYXRlX2Rpc3Bvc2l0aW9uID0gIkNSRUFURV9JRl9ORUVERUQiLAogIHdyaXRlX2Rpc3Bvc2l0aW9uID0gIldSSVRFX1RSVU5DQVRFIiwKICBwYWdlX3NpemUgPSAxMDAwCikKCmJxX3RhYmxlX3VwbG9hZCgKICBicV90YWJsZShkYXRhc2V0X2JxLCAidGVzdDIiKSwKICB2YWx1ZXMgPSBhY2hpbGxlc19kZXBlbmRlbmN5X2xvbmcKKQoKYGBgCgoKCmBgYHtyLCBsYWJlbCA9ICJqb2luIGRlcGVuZGVuY3kifQpkZXBlbmRlbmN5ID0gCiAgZnVsbF9qb2luKAogICAgYWNoaWxsZXNfZGVwZW5kZW5jeV9sb25nLAogICAgY3Jpc3ByX2RlcGVuZGVuY3lfbG9uZywKICAgIGJ5ID0gYygiQ2VsbF9MaW5lIiwgIkhVR08iLCAiRW50cmV6IiksCiAgICBzdWZmaXggPSBjKCJfYWNoaWxsZXMiLCAiX2NyaXNwciIpCiAgKQoKd3JpdGVfdHN2KGFjaGlsbGVzX2RlcGVuZGVuY3lfbG9uZywgImxhcmdlX2ZpbGVzL0FjaGlsbGVzL2FjaGlsbGVzX2RlcGVuZGVuY3lfbG9uZy50c3YiKQoKd3JpdGVfdHN2KGNyaXNwcl9kZXBlbmRlbmN5X2xvbmcsICJsYXJnZV9maWxlcy9BY2hpbGxlcy9jcmlzcHJfZGVwZW5kZW5jeV9sb25nLnRzdiIpCgp3cml0ZV90c3YoZGVwZW5kZW5jeSwgImxhcmdlX2ZpbGVzL0FjaGlsbGVzL2RlcGVuZGVuY3lfbG9uZy50c3YiKQoKYGBgCgpgYGB7ciwgbGFibGU9InBsb3QgZGVwZW5kZW5jaWVzIn0KICBjb3IudGVzdCgKICAgIGRlcGVuZGVuY3kkRGVwZW5kZW5jeV9hY2hpbGxlcywgZGVwZW5kZW5jeSREZXBlbmRlbmN5X2NyaXNwciwgCiAgICBtZXRob2QgPSAicGVhcnNvbiIsCiAgICBuYS5ybT1UCiAgKQoKCiAgIyBjb3IudGVzdCgKICAjICAgZGVwZW5kZW5jeSREZXBlbmRlbmN5X2FjaGlsbGVzLCBkZXBlbmRlbmN5JERlcGVuZGVuY3lfY3Jpc3ByLCAKICAjICAgbWV0aG9kID0gImtlbmRhbGwiLAogICMgICBuYS5ybT1UCiAgIyApCgpxID0gZGVwZW5kZW5jeSAlPiUgc2FtcGxlX24oMWU0KQoKIGNvci50ZXN0KAogICBxJERlcGVuZGVuY3lfYWNoaWxsZXMsIHEkRGVwZW5kZW5jeV9jcmlzcHIsCiAgIG1ldGhvZCA9ICJrZW5kYWxsIiwKICAgbmEucm09VAogKQpgYGAKCgpgYGB7cn0KZGVwZW5kZW5jeSAlPiUgCiAgc2FtcGxlX24oMWUzKSAlPiUgCiAgcGxvdChkZXBlbmRlbmN5X2FjaGlsbGVzIH4gZGVwZW5kZW5jeV9jcmlzcHIpCmBgYAoKCg==</div>
 
 
 </div>
@@ -3054,7 +3361,7 @@ $(document).ready(function () {
 <!-- code folding -->
 <script>
 $(document).ready(function () {
-  window.initializeSourceEmbed("download_depmap.Rmd");
+  window.initializeSourceEmbed("depmap_integrated_tmp.Rmd");
   window.initializeCodeFolding("hide" === "show");
 });
 </script>

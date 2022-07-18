@@ -87,7 +87,7 @@ bq_create = function(
   }
 }
 
-project_name = "some-os-bio-data"
+project_name = "katana-providence"
 dataset_name = "depmap"
 
 dataset_bq = bq_create("dataset", project_name, dataset_name)
@@ -97,13 +97,13 @@ dataset_bq = bq_create("dataset", project_name, dataset_name)
 ```{r, label="load wide tables"}
 achilles_dependency_wide = 
   read_csv(
-    "large_files/Achilles_gene_dependency.csv",
+    "large_files/Achilles/Achilles_gene_dependency.csv",
     n_max = Inf
   )
 
 crispr_dependency_wide = 
   read_csv(
-    "large_files/CRISPR_gene_dependency.csv",
+    "large_files/Achilles/CRISPR_gene_dependency.csv",
     n_max = Inf
   )
 ```
