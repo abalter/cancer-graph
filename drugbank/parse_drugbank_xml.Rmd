@@ -1,0 +1,114 @@
+---
+title: "Parse Drugbank XML"
+author: "Ariel Balter"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: html_notebook
+editor_options: 
+  chunk_output_type: inline
+---
+
+# Knitr
+```{r, include=F}
+knitr::opts_chunk$set(
+  warning=F,
+  message=F,
+  echo=F,
+  error=F,
+  number_section=T,
+  include=F
+)
+```
+
+# Libraries
+```{r, include=F}
+# Load Libraries
+library(vroom)
+library(tidyverse)
+library(ggplot2)
+library(kableExtra)
+library(here)
+library(jsonlite)
+library(reticulate)
+use_python("/home/balter/conda/bin/python")
+use_condaenv("base")
+```
+```{bash}
+mkdir -p DrugBank/large_filex
+```
+
+
+# Download the Schema (XSD)
+```{bash}
+curl \
+  -Lfv \
+  -o DrugBank/large_files/drugbank_xsd.zip \
+  -u ariel.balter@providence.org:ThreeSix@^3 \
+  https://go.drugbank.com/docs/drugbank.xsd
+```
+
+# Download the full database
+```{bash}
+curl \
+  -Lfv \
+  -o large_files/drugbank_full_database.zip \
+  -u ariel.balter@providence.org:ThreeSix@^3 \
+  https://go.drugbank.com/releases/5-1-9/downloads/all-full-database
+```
+
+
+```{bash}
+which python
+```
+
+```{python}
+import xmltodict
+import json
+```
+
+```{python}
+with open("full_database.xml") as f:
+    xml = xmltodict.parse(f.readlines())
+
+with open("full_database.xml") as f:
+        xml = f.read()
+        
+d = xmltodict.parse(xml, process_namespaces=True)
+
+with open("full_database.json") as f:
+        json.dump(d, f, indent=4, sort_keys=True)
+class(d)
+type(d)
+
+with open("full_database.json", "w") as f:
+        json.dump(d, f, indent=4, sort_keys=True)
+d = xmltodict.parse(xml, process_namespaces=False)
+import xmltodict
+import json
+with open("full_database.xml") as f:
+        xml = f.read()
+d = xmltodict.parse(xml, process_namespaces=False)
+with open("full_database.json", "w") as f:
+        f.write(json.dump(d, f, indent=4))
+d = xmltodict.parse(xml)
+with open("full_database.json", "w") as f:
+        json.dump(d, f, indent=4, sort_keys=True)
+import xmltodict
+import json
+with open("drugbank.xsd", "r") as f:
+        xsd = xmltodict.parse(f.read())
+xsd
+with open("drugbank_schema.json", "w") as f:
+        f.write(json.dumps(xsd, f, indent=4, sort_keys=True))
+        f.write(json.dump(xsd, f, indent=4, sort_keys=True))
+with open("drugbank_schema.json", "w") as f:
+        f.write(json.dump(xsd, f, indent=4, sort_keys=True))
+json.dump(xsd)
+with open("drugbank.xsd", "r") as f:
+        xsd = f.read()
+d = xmltodict.parse(xsd)
+```
+
+
+
+
+

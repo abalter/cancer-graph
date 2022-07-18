@@ -1,0 +1,216 @@
+---
+title: "CCLE Metadata Files"
+author: "Ariel Balter"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_notebook:
+    number_sections: yes
+    toc: yes
+    toc_float:
+      collapsed: yes
+    theme: lumen
+    fig_width: 8
+    fig_height: 6
+    fig_caption: yes
+    code_folding: hide
+---
+
+
+```{r}
+library(tidyverse)
+library(bigrquery)
+library(jsonlite)
+library(openxlsx)
+```
+
+
+```{r}
+knitr::opts_chunk$set(
+  attr.source='.numberLines',
+  attr.output='style="max-height: 300px;"'
+)
+```
+
+
+# Initialize BQ, datasets, and tables
+```{r}
+bq_auth()
+
+bq_create = function(
+    obj_type, 
+    project_name="", 
+    dataset_name="", 
+    table_name=""
+  )
+{
+  # obj_type = "table"
+  # project = "katana-providence"
+  # dataset_name = dataset_bq
+  # table_name = "test"
+  
+  print(obj_type)
+  print(project_name)
+  print(dataset_name)
+  print(table_name)
+  
+  print(typeof(dataset_name))
+  print(typeof(table_name))
+  
+  if (obj_type == "dataset")
+  {
+    print("doing dataset")
+    dataset_bq = bq_dataset(project_name, dataset_name)
+    print(dataset_bq)
+
+    if (bq_dataset_exists(dataset_bq))
+    {
+      print("deleting dataset")
+      bq_dataset_delete(dataset_bq, delete_contents = T)
+    }
+    
+    bq_dataset_create(dataset_bq)
+    
+    return(dataset_bq)
+    
+  } else if(obj_type == "table")
+  {
+    print("doing table")
+    table_bq = bq_table(dataset_name, table_name)
+    
+    if (bq_table_exists(table_bq))
+    {
+      bq_table_delete(table_bq)
+    }
+    
+    bq_table_create(table_bq)
+    
+    return(table_bq)
+    
+  }
+}
+
+project_name = "katana-providence"
+dataset_name = "ccle_raw"
+
+dataset_bq = bq_create("dataset", project_name, dataset_name)
+```
+
+# Download Files
+```{r, label="load wide tables"}
+model_list = 
+  read_csv("https://cog.sanger.ac.uk/cmp/download/model_list_latest.csv.gz") %>% 
+  rename(
+    sanger_model_id = model_id,
+    sanger_sample_id = sample_id,
+    sanger_patient_id = patient_id
+  )
+
+sample_info = read_csv("https://ndownloader.figshare.com/files/35020903")
+
+# all_mutations = 
+#   read_csv("https://cog.sanger.ac.uk/cmp/download/mutations_all_latest.csv.gz")  %>%
+#   rename(
+#     sanger_gene_id = gene_id,
+#     sanger_model_id = model_id
+#     )
+
+# A list of cancer driver mutations present in all sequenced models.
+cancer_driver_mutations = 
+  read_csv("https://cog.sanger.ac.uk/cmp/download/driver_mutations_latest.csv") %>% 
+  rename(sanger_gene_id = gene_id)
+
+# A list of all mutations present in all sequenced models.
+cancer_mutations_summary = 
+  read_csv("https://cog.sanger.ac.uk/cmp/download/mutations_summary_latest.csv.gz") %>% 
+  rename(sanger_gene_id = gene_id)
+
+cancer_driver_genes = 
+  read_csv("https://cog.sanger.ac.uk/cmp/download/driver_genes_latest.csv") %>% 
+  rename(sanger_gene_id = gene_id)
+
+gene_identifiers = 
+  read_csv("https://cog.sanger.ac.uk/cmp/download/gene_identifiers_latest.csv.gz") %>% 
+  rename(sanger_gene_id = gene_id)
+
+cancer_predisposition_variants = 
+  read_csv("https://cog.sanger.ac.uk/cmp/download/cancer_predisposition_variants_latest.csv") %>% 
+  rename(sanger_gene_id = gene_id)
+
+# for model list https://cellmodelpassports.sanger.ac.uk/documentation/models/glossary
+
+metadata_files = list(
+  model_list = list(data = model_list),
+  sample_info = list(
+    data = sample_info, 
+    schema = "sample_info_schema.xlsx"
+  ),
+  # cancer_driver_mutations = list(
+  #   data = cancer_driver_mutations, 
+  #   schema = "driver_mutations_schema.xlsx"
+  # ),
+  cancer_mutations_summary = list(
+    data = cancer_mutations_summary,
+    schema = "ccla_mutations_schema.xlsx"
+  ),
+  cancer_driver_genes = list(
+    data = cancer_driver_genes,
+    schema = ""
+  ),
+  gene_identifiers = list(data = gene_identifiers))
+```
+
+
+# Upload to BQ
+```{r, lable="metadata"}
+
+for (table_name in names(metadata_files))
+{
+  print(table_name)
+  
+  bq_perform_upload(
+    bq_table(dataset_bq, table_name),
+    values = metadata_files[[table_name]],
+    create_disposition = "CREATE_IF_NEEDED",
+    write_disposition = "WRITE_TRUNCATE"
+  )
+}
+```
+
+# DepMap Sample Info
+https://depmap.org/portal/download/
+
+```{r}
+sample_info = read_csv("https://ndownloader.figshare.com/files/35020903")
+
+
+```
+
+
+
+
+# Driver Genes 
+There is an HTML table here:
+
+https://depmap.sanger.ac.uk/documentation/datasets/gene-annotation-mapping/
+
+The driver mutations table is the union of three datasets:
+
+* <a href="https://www.cancergenomeinterpreter.org/mutations">CGI catalog</a> of validated oncogenic mutations
+
+* <a href="https://www.cancerhotspots.org/swagger-ui.html">MSKCC Hotspots</a> version 2 Includes a set of in-frame indels unique to this dataset
+
+* <a href="https://www.intogen.org/boostdm/downloads">BoostDM dataset</a> A new machine learning based classification of mutation in the intOGen cohorts
+
+The CGI and MSKCC datasets have chromosome coordinates recorded on <a href="https://www.ncbi.nlm.nih.gov/grc/human#previous_major_patch">GRCh37</a>, and were remapped to <a href="https://www.ncbi.nlm.nih.gov/grc/human#current">GRCh38</a> using UCSC’s <a href="https://hgdownload.cse.ucsc.edu/goldenPath/hg19/liftOver/hg19ToHg38.over.chain.gz">hg19 to hg38 chain file</a> and <a href="https://genome-store.ucsc.edu/">liftOver</a> utility. BoostDM is provided on GRCh38.
+
+Driver mutations schema copied from the table on that page.
+
+```{r}
+model_dataset_availability = read_csv("https://cog.sanger.ac.uk/cmp/download/model_dataset_availability_latest.csv.gz")
+
+gene_list = read_csv("https://cog.sanger.ac.uk/cmp/download/gene_identifiers_latest.csv.gz")
+
+ccle_mutations = read_csv("https://ndownloader.figshare.com/files/34989940")
+```
+
+

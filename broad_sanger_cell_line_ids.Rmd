@@ -1,0 +1,237 @@
+---
+title: "Broad vs. Sanger Cell Line IDs"
+author: "Ariel Balter"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_notebook:
+    number_sections: yes
+    toc: yes
+    toc_float:
+      collapsed: yes
+    theme: lumen
+    fig_caption: yes
+    code_folding: show
+---
+
+
+```{r include=FALSE}
+library(tidyverse)
+library(DT)
+
+display_table = function(
+    df,
+    caption=NULL,
+    search=list(regex = TRUE, caseInsensitive = TRUE)
+)
+{
+  num_rows = min(10, nrow(df))
+  df %>%
+    datatable(
+      extensions = c('ColReorder', 'Scroller'),
+      options = list(
+        colReorder=T,
+        scroller=T,
+        scrollY=20*num_rows,
+        ScrollX=T,
+        ScrollY=T,
+        autoWidth=T,
+        searchHighlight = TRUE,
+        search = search,
+        pageLength = num_rows,
+        fixedheader = TRUE
+      ),
+      caption = htmltools::tags$caption(
+        style = '
+        caption-side: top;
+        text-align: center;
+        color:black;
+        font-size:150% ;',
+        caption),
+      # caption = caption,
+      rownames = F
+    ) %>%
+    formatStyle(columns = colnames(.), fontSize = '50%')
+}
+```
+
+
+# DepMap Project
+Broad and Sanger are both part of the DepMap project. 
+
+## Sanger
+Sanger has a web page for its [DepMap Models](https://depmap.sanger.ac.uk/programmes/#models
+)
+
+Under this section is a link to the [Cell Model Passports](https://cellmodelpassports.sanger.ac.uk/
+) section which
+
+>provides a single location where information on Sanger DepMap cell models is available in a user-friendly environment.
+
+Cell Model Passports has a [download page](https://cellmodelpassports.sanger.ac.uk/downloads) which provides 
+
+>Stable [link](https://cog.sanger.ac.uk/cmp/download/model_list_latest.csv.gz) that always points to the latest version.
+
+## Broad
+Broad hosts data for the DepMap project at a dedicated portal:
+
+https://depmap.org/portal/download/
+
+Broad also has a seemingly-related project called the [Cancer Cell Line Encyclopedia (CCLE)](https://sites.broadinstitute.org/ccle. The [CCLE Datasets page](https://sites.broadinstitute.org/ccle/datasets) has a link for an annotated list of cell lines, however, that link is dead. The link for Processed Data leads to the DepMap download portal.
+
+That portal lists a file called [_sample_info.csv_](https://ndownloader.figshare.com/files/35020903
+) which could very well be the annotated cell line information.
+
+
+
+# Download Sanger Model List
+```{r label="load wide tables"}
+model_list = 
+  read_csv("https://cog.sanger.ac.uk/cmp/download/model_list_latest.csv.gz") %>% 
+  select(
+    sanger_model_id = model_id,
+    depmap_id = BROAD_ID,
+    sanger_sample_id = sample_id,
+    sanger_patient_id = patient_id,
+    model_type,
+    cell_line_name = model_name,
+    ccle_id = CCLE_ID,
+    tissue,
+    cancer_type,
+    cancer_subtype = cancer_type_detail,
+    sample_site
+  ) %>% 
+  mutate(from_sanger = T) %>% 
+  rowwise() %>% 
+  mutate(depmap_id = str_split(depmap_id, ";")) %>% 
+  unnest_longer(depmap_id)
+```
+
+# Download BROAD DepMap "Sample Info"
+
+```{r}
+sample_info = 
+  read_csv("https://ndownloader.figshare.com/files/35020903") %>% 
+  select(
+    depmap_id = DepMap_ID,
+    sanger_model_id = Sanger_Model_ID,
+    ccle_id = CCLE_Name,
+    cell_line_name,
+    stripped_cell_line_name,
+    tissue = sample_collection_site,
+    cancer_type = primary_disease,
+    cancer_subtype = Subtype,
+    lineage,
+    lineage_subtype
+  ) %>% 
+  mutate(from_broad = T)
+
+```
+
+# Joined
+```{r}
+joined  = 
+  full_join(
+    sample_info,
+    model_list,
+    by = c("sanger_model_id", "depmap_id"),
+    suffix = c("_broad", "_sanger")
+  ) %>% 
+  distinct() %>% 
+  mutate(
+    has_depmap_id = !is.na(depmap_id),
+    has_sanger_id = !is.na(sanger_model_id),
+    has_ccle_id_broad = !is.na(ccle_id_broad),
+    has_ccle_id_sanger = !is.na(ccle_id_sanger),
+    has_cell_line_name_broad = !is.na(cell_line_name_broad),
+    has_cell_line_name_sanger = !is.na(cell_line_name_sanger)
+  ) %>% 
+  group_by(depmap_id) %>% 
+    filter(n()==1 | n()>1 & !is.na(sanger_model_id)) %>% 
+  ungroup() %>% 
+  group_by(sanger_model_id) %>% 
+    filter(n()==1 | n()>1 & !is.na(depmap_id)) %>% 
+  ungroup()
+
+sorted_colnames = 
+  colnames(joined) %>% 
+  sort() %>% 
+  setdiff(., c("sanger_model_id", "depmap_id")) %>% 
+  c(c("sanger_model_id", "depmap_id"), .)
+
+joined = joined %>% select(!!sorted_colnames)
+
+joined %>% display_table()
+
+```
+
+
+# Some Counts
+```{r}
+joined %>% 
+  mutate(
+    has_depmap_id = !is.na(depmap_id),
+    has_sanger_id = !is.na(sanger_model_id)
+  ) %>% 
+  count(has_depmap_id, has_sanger_id) %>%
+  display_table()
+
+joined %>% 
+  mutate(
+    has_depmap_id = !is.na(depmap_id),
+    has_sanger_id = !is.na(sanger_model_id)
+  ) %>% 
+  group_by(model_type) %>% 
+  count(has_depmap_id, has_sanger_id) %>%
+  display_table()
+
+joined %>% 
+  mutate(
+    has_depmap_id = !is.na(depmap_id),
+    has_sanger_id = !is.na(sanger_model_id),
+    has_ccle_id_broad = !is.na(ccle_id_broad),
+    has_ccle_id_sanger = !is.na(ccle_id_sanger),
+    has_cell_line_name_broad = !is.na(cell_line_name_broad),
+    has_cell_line_name_sanger = !is.na(cell_line_name_sanger)
+  ) %>% 
+  count(has_depmap_id, has_sanger_id, has_ccle_id_broad, has_ccle_id_sanger, has_cell_line_name_broad, has_cell_line_name_sanger) %>% 
+  arrange(!has_depmap_id, !has_sanger_id, !has_ccle_id_broad, !has_ccle_id_sanger, !has_cell_line_name_broad, !has_cell_line_name_sanger) %>%
+  display_table()
+```
+
+
+# Add in GDSC cell line metadata
+```{r}
+gdsc_cell_lines_metadata = 
+  read_tsv("../gdsc_bq_etl/large_files/harmonized/cell_lines_metadata.tsv") %>% 
+  select(
+    cell_line_name, 
+    cosmic_sample_id, 
+    sanger_model_id = cell_model_passports_id
+  ) %>% 
+  mutate(across(everything(), toupper)) %>% 
+  mutate(in_gdsc = T) %>% 
+  distinct()
+```
+
+```{r}
+joined2 = 
+  full_join(
+    joined,
+    gdsc_cell_lines_metadata,
+    by = "sanger_model_id"
+  ) %>% 
+  mutate(in_gdsc = ifelse(is.na(in_gdsc), F, T)) %>% 
+  select(depmap_id, sanger_model_id, in_gdsc) %>% 
+  distinct()
+
+
+```
+```{r}
+joined2 %>%
+  display_table()
+```
+
+
+
+
+

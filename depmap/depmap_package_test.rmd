@@ -1,0 +1,110 @@
+---
+title: "Depmap package test"
+author: "Ariel Balter"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_notebook:
+    number_sections: yes
+    toc: yes
+    toc_float:
+      collapsed: yes
+    theme: lumen
+    fig_width: 8
+    fig_height: 6
+    fig_caption: yes    
+    code_folding: hide
+---
+
+
+```{r}
+library(rmarkdown)
+library(tidyverse)
+library(depmap)
+source('utilities.R')
+```
+
+
+```{r}
+knitr::opts_chunk$set(
+  attr.source='.numberLines',
+  attr.output='style="max-height: 300px;"'
+)
+```
+
+
+# Download DepMap Data
+```{}
+rnai <- depmap_rnai()
+crispr <- depmap_crispr()
+# copyNumber <- depmap_copyNumber()
+# TPM <- depmap_TPM()
+# RPPA <- depmap_RPPA()
+metadata <- depmap_metadata()
+# mutationCalls <- depmap_mutationCalls()
+drug_sensitivity <- depmap_drug_sensitivity()
+# proteomic <- depmap_proteomic()
+
+```
+
+```{r
+write_tsv(rnai, "large_files/depmap_rnai.csv")
+write_tsv(crispr, "large_files/depmap_crispr.csv")
+write_tsv(metadata, "large_files/depmap_metadata.csv")
+```
+
+```{r}
+rnai = read_tsv("large_files/depmap_rnai.csv")
+crispr = read_tsv("large_files/depmap_crispr.csv")
+metadata = read_tsv("large_files/depmap_metadata.csv")
+```
+
+
+
+# Upload to BigQuery
+```{r}
+library(bigrquery)
+
+bq_auth()
+```
+
+## Authenticate
+```{r}
+bq_projects()
+gcp_project = "katana-providence"
+dataset_name = "depmap"
+```
+
+## Create Dataset and Tables
+```{r}
+depmap_dataset = bq_dataset(gcp_project, dataset_name)
+if (!bq_dataset_exists(depmap_dataset))
+{
+  bq_dataset_create(depmap_dataset)
+}
+```
+
+```{r}
+crispr_table = bq_table(depmap_dataset, "crispr")
+rnai_table = bq_table(depmap_dataset, "rnai")
+metadata_table = bq_table(depmap_dataset, "metadata")
+
+createBqTableIfNeeded = function(bq_table)
+{
+  if (!bq_table_exists(bq_table))
+  {
+    bq_table_create(bq_table)
+  }
+}
+
+createBqTableIfNeeded(crispr_table)
+createBqTableIfNeeded(rnai_table)
+createBqTableIfNeeded(metadata_table)
+```
+
+# Create Schema
+```{r}
+
+```
+
+
+

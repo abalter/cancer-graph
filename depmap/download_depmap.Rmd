@@ -1,0 +1,30 @@
+---
+title: "Depmap package test"
+author: "Ariel Balter"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_notebook:
+    number_sections: yes
+    toc: yes
+    toc_float:
+      collapsed: yes
+    theme: lumen
+    fig_width: 8
+    fig_height: 6
+    fig_caption: yes
+    code_folding: hide
+---
+
+
+```{r}
+library(rmarkdown)
+library(tidyverse)
+```
+
+
+```{r}
+knitr::opts_chunk$set(
+  attr.source='.numberLines',
+  attr.output='style="max-height: 300px;"'
+)
+```

@@ -1,0 +1,257 @@
+---
+title: "depmap"
+output: 
+  html_notebook: default
+
+---
+
+Achilles vs CERES
+CRISPR9 vs iRNA
+
+Broad vs. Sanger
+
+dorothea
+
+cell model passports
+
+Extracting Biological Insights from the Project Achilles Genome-Scale CRISPR Screens in Cancer Cell Lines | bioRxiv
+https://www.biorxiv.org/content/10.1101/720243v1.full
+
+Integrated cross-study datasets of genetic dependencies in cancer | Nature Communications
+https://www.nature.com/articles/s41467-021-21898-7
+
+Defining a Cancer Dependency Map: Cell
+https://www.cell.com/cell/fulltext/S0092-8674(17)30651-7?_returnURL=https%3A%2F%2Flinkinghub.elsevier.com%2Fretrieve%2Fpii%2FS0092867417306517%3Fshowall%3Dtrue
+
+GenePattern
+https://www.genepattern.org/
+
+GenePattern Notebook | GenePattern Notebook Repository
+https://notebook.genepattern.org/
+
+DepMap: The Cancer Dependency Map Project at Broad Institute
+https://depmap.org/portal/
+
+programmes - The Cancer Dependency Map at Sanger
+https://depmap.sanger.ac.uk/programmes/
+
+CELLector
+https://ot-cellector.shinyapps.io/CELLector_App/
+
+Cell Model Passports
+https://cellmodelpassports.sanger.ac.uk/
+
+DoRothEA
+https://dorothea.opentargets.io/#/
+
+A genome-wide atlas of co-essential modules assigns function to uncharacterized genes - PMC
+https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8763319/
+
+In vivo and in vitro human gene essentiality estimations capture contrasting functional constraints | NAR Genomics and Bioinformatics | Oxford Academic
+https://academic.oup.com/nargab/article/3/3/lqab063/6320122
+
+
+Misc:
+
+* Full drugbank -- targets?
+
+# [Integrated cross-study datasets of genetic dependencies in cancer](https://www.nature.com/articles/s41467-021-21898-7)
+
+* CRISPR-Cas9 viability screens
+* integrated the two largest public independent CRISPR-Cas9 screens performed to date (at the Broad and Sanger institutes) by assessing, comparing, and selecting methods for correcting biases due to heterogeneous single-guide RNA efficiency, gene-independent responses to CRISPR-Cas9 targeting originated from copy number alterations, and experimental batch effects. 
+*  largest integrated resources of CRISPR-Cas9 screens to date and the basis for harmonizing existing and future functional genetics datasets.
+* Of particular note are two large pan-cancer CRISPR-Cas9 screens that have been independently performed by the Broad and Sanger institutes2,12. The two institutes have also joined forces with the aim of assembling a joint comprehensive map of all the intracellular genetic dependencies and vulnerabilities of cancer: the Cancer Dependency Map (DepMap)13,14.
+
+# Achilles
+DEMETER for RNAi screening, CERES for CRISPR screening
+
+# [Improved estimation of cancer dependencies from large-scale RNAi screens using model-based normalization and data integration ](https://depmap.org/R2-D2/)
+
+https://www.nature.com/articles/s41467-018-06916-5
+
+This model substantially improves estimates of gene dependency across a range of performance measures, including identification of gold-standard essential genes and agreement with CRISPR/Cas9-based viability screens. It also allows us to integrate information across three large RNAi screening datasets, providing a unified resource representing the most extensive compilation of cancer cell line genetic dependencies to date.
+
+Datasets
+
+The input files and model results from applying DEMETER2 to the following three large-scale RNAi datasets:
+
+    501 cancer cell lines from Project Achilles (Tsherniak et al. 2017)
+    397 cancer cell lines from Project DRIVE (McDonald et al. 2017)
+    76 breast cancer cell lines (Marcotte et al. 2016)
+
+
+
+
+#[Defining a Cancer Dependency Map](https://www.cell.com/cell/fulltext/S0092-8674(17)30651-7?_returnURL=https%3A%2F%2Flinkinghub.elsevier.com%2Fretrieve%2Fpii%2FS0092867417306517%3Fshowall%3Dtrue)
+
+    •
+    The DEMETER computational model segregates on- from off-target effects of RNAi
+    •
+    769 strong differential dependencies were identified in 501 cancer cell lines
+    •
+    Predictive models for 426 dependencies were found using 66,646 molecular features
+    •
+    This cancer dependency map facilitates the prioritization of therapeutic targets
+    
+
+# [Characteristics and prognostic value of potential dependency genes in clear cell renal cell carcinoma based on a large-scale CRISPR-Cas9 and RNAi screening database DepMap](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8040392/)
+
+DepMap
+
+The Cancer Dependency Map (https://depmap.org/portal/) is an accessible website 4 based on large-scale multiomics screening projects, including Cancer Cell Line Encyclopedia (CCLE) 8, a computational algorithm model analyzing the results of three massive RNAi screening datasets called DEMETER2 9; the PRISM Repurposing dataset using pooled-cell line chemical-perturbation viability to screen small molecules 10; and the Achilles Project based on genome-scale CRISPR-Cas9 knockout screens 5. The top 10 preferentially essential genes from ccRCC cell lines identified by two projects on the DepMap database were collected. A gene that could be found in both screening method datasets across ccRCC cell lines or more than one ccRCC cell line was selected to form a signature gene set with potential prognostic value for further analysis. The gene effect scores of each gene in this set, DEMETER2 (RNAi) and CERES (CRISPR), which were derived from screening experiments, were also collected from DepMap. Simply, these two scores evaluated the effect size of knocking out or knocking down a gene while normalizing expression against the distribution of pan-essential and nonessential genes 4, 5. Negative scores represent that the cell line would grow slower, while positive scores show that the cell line would grow faster after experimental manipulation. Normally, the cutoff would be set as -0.5 for a score that represents obvious depletion in a cell line, and positive scores should be cautiously interpreted since a fitness advantage could be caused by random events 5.
+
+GEPIA2
+
+Gene expression profiling interactive analysis 2 (GEPIA2, http://gepia2.cancer-pku.cn/) is a web server for expression profiling and user-friendly interactive analysis based on the GTEx and TCGA databases (provisional) 11. 
+
+cBioPortal
+
+The cBioPortal for Cancer Genomics (http://cbioportal.org) was specifically designed to provide a web resource for exploring, analyzing, and visualizing cancer data without barriers 12.
+
+GSCALite
+
+Gene Set Cancer Analysis (GSCALite, http://bioinfo.life.hust.edu.cn/web/GSCALite/) is an interactive web server, especially for gene sets analyzed based on TCGA and GTEx datasets, and it provides a flexible manner for research to analyze the complex correlation between a gene set and single or multiple cancer types 13. 
+
+Functional enrichment databases
+
+GeneMANIA (http://www.genemania.org) is a flexible user-friendly website designed to analyze functions for a gene or gene list based on numerous datasets and interactions from multiple sources, and it can visualize the relationship of proteomic and genetic interactions, coexpression, and related pathways for submitted genes 14. 
+
+Metascape (http://metascape.org) provides a biologist-oriented resource to interpret critical components of pathways and protein complexes associated with queried genes 15. In our study, the default analysis module was utilized with a p-value cutoff of 0.01 based on the Gene Ontology (GO) and Kyoto Encyclopedia of Genes and Genomes (KEGG) pathways to further verify the enrichment of 16 selected dependency genes. The website of g:Profiler (https://biit.cs.ut.ee/gprofiler) is another freely available tool to provide reliable service on the basis of simultaneously updating high-quality data from multiple sources 16.
+
+Immune-associated databases
+
+Tumor Immune Estimation Resource (TIMER, https://cistrome.shinyapps.io/timer/) is a useful tool for the investigation of the molecular characteristics between tumor-infiltrating cells and the host immune system 17. 
+
+TISIDB (http://cis.hku.hk/TISIDB/index.php) is an integrated tumor-immune interaction repository for users to explore the correlation between submitted genes and immune features through literature mining and genomic data analysis 18. 
+
+
+# [Chronos: a cell population dynamics model of CRISPR experiments that improves inference of gene fitness effects](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-021-02540-7)
+
+The CRISPR-Cas9 system is less prone to the widespread off-target effects that occur in RNAi experiments [1]. However, a number of other artifacts have been observed in pooled CRISPR screens which can complicate our ability to identify the true effect of gene knockout on cell fitness. 
+
+# [Extracting Biological Insights from the Project Achilles Genome-Scale CRISPR Screens in Cancer Cell Lines](https://www.biorxiv.org/content/10.1101/720243v1)
+
+One of the main goals of the Cancer Dependency Map project is to systematically identify cancer vulnerabilities across cancer types to accelerate therapeutic discovery. Project Achilles serves this goal through the in vitro study of genetic dependencies in cancer cell lines using CRISPR/Cas9 (and, previously, RNAi) loss-of-function screens. 
+
+Our procedures for handling Achilles data have evolved as the project continues. However,
+there is no regular publication associated with Achilles data releases to explain our data
+processing choices to the public. This document describes in detail the procedures used to turn
+sgRNA data in Achilles CRISPR-Cas9 screens into the datasets we release. In addition to
+serving as a comprehensive reference for uses of Achilles CRISPR data, we hope this
+document contains useful lessons for other groups as they make their own choices about
+processing CRISPR experiments.
+
+
+>However, there is no regular publication associated with Achilles data releases to explain our data processing choices to the public. This document describes in detail the procedures used to turn sgRNA data in Achilles CRISPR-Cas9 screens into the datasets we release. In addition to serving as a comprehensive reference for uses of Achilles CRISPR data, we hope this document contains useful lessons for other groups as they make their own choices about processing CRISPR experiments.
+
+Finally, for each gene score in each cell line we infer the probability
+that the gene’s score represents a true biological depletion phenotype
+
+All
+biological replicate and pDNA batch read counts are combined in a read count matrix
+( Achilles_raw_readcounts.csv ) with replicates and pDNA batches as columns and rows
+corresponding to the total number of sgRNA reads.
+
+The Broad has adopted
+four different processes for PCR amplification over the lifetime of the Achilles CRISPR
+experiment with transitions occurring in July 2015, November 2015, and April 2016, yielding four
+pDNA batches numbered 0-3. Batches for each replicate and pDNA measurement are provided
+in replicate_map.
+
+We normalize each read count column by its total reads, multiply by one million, and add one
+pseudocount to generate reads per million (RPM). We take the log2 of the ratio of each replicate
+RPM to the corresponding pDNA batch RPM to generate an sgRNA by replicate logfold change
+(LFC) matrix.
+
+For quality control and normalization, we use exogenously defined nonessential genes as
+negative controls and common essential genes as positive controls. The nonessential gene list
+was taken from the study by Hart et al. in RNAi data7 (nonessentials.txt). The essential gene list
+is the intersection of two studies8,9 that use orthogonal methods, gene trap and CRISPR-ko, to
+make a discrete list of genes required for the life of a human cell line. Blomen et al. suggest
+using the overlap of hits in KBM7 and HAP18. Hart et al. suggest the “daisy” method of using
+hits that overlap at more than half the samples, where a hit is defined as having a BF > 0 9.
+Taking the intersection of the two studies results in 1,248 cell line essential genes reported in
+common_essentials.txt.
+
+The separation control step in the Achilles pipeline is used to check that essential and
+nonessential genes are behaving as expected. Previously, we used the strictly standardized
+median difference (SSMD) to assess the separation between the killing effects of the two
+groups. However, SSMD penalizes high variance in the LFC values of both the essential and
+nonessential genes. While we expect the LFC values of the nonessential genes to have a tight
+distribution centered around zero, no analogous expectation exists for the essential genes.
+Instead, we measured the difference between the means of the LFC values of the essential and nonessential genes divided by the standard deviation of the LFC values of the nonessential
+genes, which we refer to as the null-normalized mean difference (NNMD; Fig. 4a). Note that for
+both NNMD and SSMD more negative scores indicate a better screen.
+
+The batch-corrected CERES gene effect scores are given in
+Achilles_gene_effect.csv.
+
+We then employ a standard Bayesian E-M optimization procedure with a single free parameter:
+the total fraction of gene scores in the cell line which was generated by the null distribution. We
+use an initial guess of 0.85, which is generally close to the final result. The final probability of
+each gene score being generated by the positive (real depletion) distribution is provided to
+users in the matrix Achilles_gene_dependency.csv
+
+The large variety of cancer cells that have been assayed in Achilles can be exploited to identify
+genes which are universally important for the viability of human cells. We provide a list of such
+genes in the file Achilles_common_essentials.txt, distinct from the prior known common essentials used elsewhere in the pipeline (which are provided in the file common_essentials.txt ).
+
+
+
+
+#[Predicting and characterizing a cancer dependency map of tumors with deep learning](https://www.science.org/doi/10.1126/sciadv.abh1275)
+
+https://www.biorxiv.org/content/10.1101/2020.02.21.959627v1
+
+# [Cell Model Passports—a hub for clinical, genetic and functional datasets of preclinical cancer models](https://academic.oup.com/nar/article/47/D1/D923/5107576?login=false#supplementary-data)
+
+Their experimental tractability has led to their use in large-scale genetic and pharmacological screens to identify new drug targets and guide biomarker development including the Genomics of Drug Sensitivity in Cancer (GDSC) project based at the Sanger Institute, the Cancer Cell Line Encyclopedia (CCLE), the National Cancer Institute-60 (NCI-60) cancer cell line screen and the Cancer Therapeutic Response Portal (CTRP) (5–8).
+
+Due to their extensive use over decades, there are several challenges when working with and selecting cancer cell models. Many models have inadvertently been cross-contaminated (9–11) or are associated with numerous synonymous identifiers (11, 12). In addition, key patient and clinical information has been lost including relationships between cell lines originally derived from the same patient or sample (13). The lack of a consistent controlled vocabulary to describe cell line metadata and the large number of synonymous identifiers makes data integration and cross-referencing of datasets burdensome (14, 15). The length of time in culture, culture conditions and exogenous selective pressures on a cell line (e.g. PDX engraftment) can lead to genetic drift (16, 17). Therefore, a clear understanding of the characteristics and source of the model used to generate a given dataset is important for reproducibility of results. Although many cell lines have been genetically and functionally characterized, it is often difficult to determine what information is available for a particular cell line and how to access these data. Furthermore, these datasets are often inaccessible to non-computational, wet-lab scientists. As a result of these issues, the informed selection of cancer models based on patient, clinical and molecular features, and the availability of associated datasets is currently time consuming and difficult.
+
+
+
+DepMap - Broad Institute
+https://depmap.org/ceres/
+
+Computational correction of copy number effect improves specificity of CRISPR-Cas9 essentiality screens in cancer cells - PubMed
+https://pubmed.ncbi.nlm.nih.gov/29083409/
+
+Extracting Biological Insights from the Project Achilles Genome-Scale CRISPR Screens in Cancer Cell Lines | bioRxiv
+https://www.biorxiv.org/content/10.1101/720243v1.full
+
+Computational correction of copy-number effect improves specificity of CRISPR-Cas9 essentiality screens in cancer cells - PMC
+https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5709193/
+
+Integrated cross-study datasets of genetic dependencies in cancer | Nature Communications
+https://www.nature.com/articles/s41467-021-21898-7
+
+Gene expression has more power for predicting in vitro cancer cell vulnerabilities than genomics | bioRxiv
+https://www.biorxiv.org/content/10.1101/2020.02.21.959627v3.full
+
+Discovering the anticancer potential of non-oncology drugs by systematic viability profiling | Nature Cancer
+https://www.nature.com/articles/s43018-019-0018-6
+
+Agreement between two large pan-cancer CRISPR-Cas9 gene dependency data sets | Nature Communications
+https://www.nature.com/articles/s41467-019-13805-y
+
+Federal Tax Credits for All-Electric and Plug-in Hybrid Vehicles
+https://www.fueleconomy.gov/feg/taxevb.shtml
+
+Want to Buy an Electric Car? Read This First - The New York Times
+https://www.nytimes.com/2022/03/23/us/electric-car-buying-guide.html
+
+Cell Model Passports
+https://cellmodelpassports.sanger.ac.uk/downloads
+
+Cell Model Passports—a hub for clinical, genetic and functional datasets of preclinical cancer models | Nucleic Acids Research | Oxford Academic
+https://academic.oup.com/nar/article/47/D1/D923/5107576
+
+CEN-tools
+http://cen-tools.com/
+
+Integrated cross-study datasets of genetic dependencies in cancer | bioRxiv
+https://www.biorxiv.org/content/10.1101/2020.05.22.110247v2
+
+
+https://depmap.org/broad-sanger/

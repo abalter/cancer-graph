@@ -1,0 +1,332 @@
+---
+title: "Upload Depmap"
+author: "Ariel Balter"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_notebook:
+    number_sections: yes
+    toc: yes
+    toc_float:
+      collapsed: yes
+    theme: lumen
+    fig_width: 8
+    fig_height: 6
+    fig_caption: yes
+    code_folding: hide
+---
+
+
+```{r}
+library(tidyverse)
+library(bigrquery)
+```
+
+
+```{r}
+knitr::opts_chunk$set(
+  attr.source='.numberLines',
+  attr.output='style="max-height: 300px;"'
+)
+```
+
+
+# Initialize BQ, datasets, and tables
+```{r}
+bq_auth()
+
+bq_create = function(
+    obj_type, 
+    project_name="", 
+    dataset_name="", 
+    table_name=""
+  )
+{
+  # obj_type = "table"
+  # project = "katana-providence"
+  # dataset_name = dataset_bq
+  # table_name = "test"
+  
+  print(obj_type)
+  print(project_name)
+  print(dataset_name)
+  print(table_name)
+  
+  print(typeof(dataset_name))
+  print(typeof(table_name))
+  
+  if (obj_type == "dataset")
+  {
+    print("doing dataset")
+    dataset_bq = bq_dataset(project_name, dataset_name)
+    print(dataset_bq)
+
+    if (bq_dataset_exists(dataset_bq))
+    {
+      print("deleting dataset")
+      bq_dataset_delete(dataset_bq, delete_contents = T)
+    }
+    
+    bq_dataset_create(dataset_bq)
+    
+    return(dataset_bq)
+    
+  } else if(obj_type == "table")
+  {
+    print("doing table")
+    table_bq = bq_table(dataset_name, table_name)
+    
+    if (bq_table_exists(table_bq))
+    {
+      bq_table_delete(table_bq)
+    }
+    
+    bq_table_create(table_bq)
+    
+    return(table_bq)
+    
+  }
+}
+
+project_name = "katana-providence"
+dataset_name = "depmap"
+
+dataset_bq = bq_create("dataset", project_name, dataset_name)
+```
+
+# Load Gene Dependencies
+```{r, label="load wide tables"}
+achilles_dependency_wide = 
+  read_csv(
+    "large_files/Achilles/Achilles_gene_dependency.csv",
+    n_max = Inf
+  )
+
+crispr_dependency_wide = 
+  read_csv(
+    "large_files/Achilles/CRISPR_gene_dependency.csv",
+    n_max = Inf
+  )
+```
+
+# Wide to Long
+```{r, label="wide to long"}
+achilles_dependency_fields = list(
+  bq_field(
+    name = "Cell_Line",
+    type = "STRING",
+    description = "DepMap ID (Broad ID)"
+  ),
+  bq_field(
+    name = "HUGO",
+    type = "STRING",
+    description = "HUGO HGNC Gene ID."
+  ),
+  bq_field(
+    name = "Entrez",
+    type = "STRING",
+    description = "Entrez Gene ID."
+  ),
+  bq_field(
+    name = "Dependency",
+    type = "FLOAT",
+    description = "Probability that knocking out the gene has a real depletion effect using gene_effect."
+  )
+)
+
+achilles_dependency_long = 
+  achilles_dependency_wide %>% 
+  pivot_longer(
+    cols = c(-DepMap_ID), 
+    names_to = "Gene_Name",
+    values_to = "Dependency"
+  ) %>% 
+  # mutate(project = "Achilles") %>% 
+  rename(Cell_Line = DepMap_ID) %>% 
+  extract(
+    Gene_Name, 
+    c("HUGO", "Entrez"), 
+    "([\\w\\-]+) \\(([0-9]+)\\)"
+  )
+
+crispr_dependency_long = 
+  crispr_dependency_wide %>% 
+  pivot_longer(
+    cols = c(-DepMap_ID), 
+    names_to = "Gene_Name",
+    values_to = "Dependency"
+  ) %>% 
+  # mutate(project = "CRISPR") %>% 
+  rename(Cell_Line = DepMap_ID) %>% 
+  extract(
+    Gene_Name, 
+    c("HUGO", "Entrez"), 
+    "([\\w\\-]+) \\(([0-9]+)\\)"
+  )
+
+
+rm(achilles_dependency_wide)
+rm(crispr_dependency_wide)
+gc()
+
+```
+
+# Load Metadata
+```{r, label="load metadata"}
+achilles_metadata = read_csv("large_files/Achilles/Achilles_metadata.csv")
+
+metadata_fields = list(
+  bq_field(
+    name = "DepMap_ID",
+    type = "STRING",
+    description = "Cell Line, Broad ID"
+  ),
+  bq_field(
+    name = "Achilles_n_replicates",
+    type = "INTEGER",
+    description = "Number of replicates used in Achilles CRISPR screen passing QC"
+    ),
+  bq_field(
+    name = "cell_line_NNMD",
+    type = "FLOAT",
+    description = "Difference in the means of positive and negative controls normalized by the standard deviation of the negative control distribution."
+    ),
+  # bq_field(
+  #   name = "culture_type",
+  #   type = "STRING",
+  #   description = "Growth pattern of cell line (Adherent, Suspension, Mixed adherent and suspension, 3D, or Adherent (requires laminin coating)."
+  #   ),
+  bq_field(
+    name = "culture_medium",
+    type = "STRING",
+    description = "Medium used to grow cell line"
+    ),
+  bq_field(
+    name = "cas9_activity",
+    type = "FLOAT",
+    description = "Percentage of cells remaining GFP negative on days 12-14 of cas9 activity assay as measured by FACs"
+  )
+)
+```
+
+
+# Upload
+## Metadata
+```{r, lable="metadata"}
+bq_perform_upload(
+  bq_table(dataset_bq, "achilles_metadata"),
+  values = achilles_metadata,
+  create_disposition = "CREATE_IF_NEEDED",
+  write_disposition = "WRITE_TRUNCATE",
+  fields = bq_fields(metadata_fields)
+)
+
+```
+
+## Achilles
+```{r, label="achilles"}
+bq_perform_upload(
+  bq_table(dataset_bq, "achilles_gene_dependency"),
+  values = achilles_dependency_long,
+  create_disposition = "CREATE_IF_NEEDED",
+  write_disposition = "WRITE_TRUNCATE",
+  fields = achilles_dependency_fields
+)
+```
+
+## CRISPR
+```{r, label="crispr"}
+bq_perform_upload(
+  bq_table(dataset_bq, "crispr_gene_dependency"),
+  values = crispr_dependency_long,
+  create_disposition = "CREATE_IF_NEEDED",
+  write_disposition = "WRITE_TRUNCATE",
+  fields = achilles_dependency_fields
+)
+```
+
+
+# Upload Diagnostics
+```{}
+N = 10001
+M = 1000
+
+df = tibble(
+  A = 1:N,
+  B = runif(N),
+  C = replicate(N, paste(sample(letters, 10, replace=T), collapse="")),
+  D = runif(N),
+  E = replicate(N, paste(sample(LETTERS, 10, replace=T), collapse=""))
+)
+
+df = 
+  matrix(rnorm(N*M), nrow = N) %>% 
+  data.frame() %>% 
+  set_names(replicate(M, paste(sample(LETTERS, 6, replace=T), collapse="")))
+
+dataset_bq = bq_create("dataset", project_name, dataset_name)
+
+bq_perform_upload(
+  bq_table(dataset_bq, "test2"),
+  values = df,
+  create_disposition = "CREATE_IF_NEEDED",
+  write_disposition = "WRITE_TRUNCATE",
+  page_size = 1000
+)
+
+bq_table_upload(
+  bq_table(dataset_bq, "test2"),
+  values = achilles_dependency_long
+)
+
+```
+
+
+
+```{r, label = "join dependency"}
+dependency = 
+  full_join(
+    achilles_dependency_long,
+    crispr_dependency_long,
+    by = c("Cell_Line", "HUGO", "Entrez"),
+    suffix = c("_achilles", "_crispr")
+  )
+
+write_tsv(achilles_dependency_long, "large_files/Achilles/achilles_dependency_long.tsv")
+
+write_tsv(crispr_dependency_long, "large_files/Achilles/crispr_dependency_long.tsv")
+
+write_tsv(dependency, "large_files/Achilles/dependency_long.tsv")
+
+```
+
+```{r, lable="plot dependencies"}
+  cor.test(
+    dependency$Dependency_achilles, dependency$Dependency_crispr, 
+    method = "pearson",
+    na.rm=T
+  )
+
+
+  # cor.test(
+  #   dependency$Dependency_achilles, dependency$Dependency_crispr, 
+  #   method = "kendall",
+  #   na.rm=T
+  # )
+
+q = dependency %>% sample_n(1e4)
+
+ cor.test(
+   q$Dependency_achilles, q$Dependency_crispr,
+   method = "kendall",
+   na.rm=T
+ )
+```
+
+
+```{r}
+dependency %>% 
+  sample_n(1e3) %>% 
+  plot(dependency_achilles ~ dependency_crispr)
+```
+
+

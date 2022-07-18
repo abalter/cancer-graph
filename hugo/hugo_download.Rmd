@@ -1,0 +1,484 @@
+---
+title: "GDSC Data Download and Normalization"
+output: 
+  html_notebook: default
+editor_options: 
+  chunk_output_type: inline
+---
+
+# Libraries
+```{r}
+library(tidyverse)
+library(bigrquery)
+library(DT)
+library(here)
+```
+
+
+# Custom table printing
+```{r, include=F}
+display_table = function(
+  df,
+  caption=NULL,
+  search=list(regex = TRUE, caseInsensitive = TRUE)
+)
+{
+  num_rows = nrow(df)
+  df %>%
+    datatable(
+      extensions = c('ColReorder', 'Scroller'),
+      options = list(
+        colReorder=T,
+        scroller=T,
+        scrollY=300,
+        sScrollX=T,
+        searchHighlight = TRUE,
+        search = search,
+
+        pageLength = num_rows
+      ),
+      caption = htmltools::tags$caption(
+        style = '
+        caption-side: top;
+        text-align: center;
+        color:black;
+        font-size:150% ;',
+        caption),
+      # caption = caption,
+      rownames = T
+    ) %>%
+    formatStyle(columns = colnames(.), fontSize = '50%')
+}
+
+```
+
+
+```{r, include=F}
+knitr::opts_chunk$set(
+  comment = '',
+  fig.width = 6, 
+  fig.height = 6
+)
+
+eval_r = TRUE
+eval_sh = FALSE
+setwd(here())
+
+```
+
+# HUGO
+Unique and harmonized identifiers for gene names and symbols across multiple sources and known synonyms.
+
+https://www.genenames.org/download/custom/
+
+Contains genes, synonyms, and gene properties including canonical names.
+
+## Properties 
+* name 
+* synonyms
+* hgncID
+* geneID
+
+## Info on HUGO [Archive](http://ftp.ebi.ac.uk/pub/databases/genenames/hgnc/archive/) Structure
+
+
+
+```{bash, eval=eval_bash}
+dir="large_files/hugo"
+#mkdir -p large_files/hugo
+#cd large_files/hugo
+
+wget \
+  --show-progress \
+  -q \
+  --progress=bar:force:noscroll \
+  -O ${dir}/hugo_complete_set.tsv \
+  ftp.ebi.ac.uk/pub/databases/genenames/hgnc/tsv/hgnc_complete_set.txt 
+  
+ls -al ${dir}
+```
+
+# Fix colnames
+**Current column names:**  
+`hgnc_id`, `symbol`, `name`, `locus_group`, `locus_type`, `status`, `location`, `location_sortable`, `alias_symbol`, `alias_name`, `prev_symbol`, `prev_name`, `gene_family`, `gene_family_id`, `date_approved_reserved`, `date_symbol_changed`, `date_name_changed`, `date_modified`, `entrez_id`, `ensembl_gene_id`, `vega_id`, `ucsc_id`, `ena`, `refseq_accession`, `ccds_id`, `uniprot_ids`, `pubmed_id`, `mgd_id`, `rgd_id`, `lsdb`, `cosmic`, `omim_id`, `mirbase`, `homeodb`, `snornabase`, `bioparadigms_slc`, `orphanet`, `pseudogene.org`, `horde_id`, `merops`, `imgt`, `iuphar`, `kznf_gene_catalog`, `mamit-trnadb`, `cd`, `lncrnadb`, `enzyme_id`, `intermediate_filament_db`, `rna_central_ids`, `lncipedia`, `gtrnadb`, `agr`, `mane_select`, `gencc`
+
+
+
+**New column names:**  
+Same except `pseudogene.org` --> `pseudogene`. `mamit-trnadb` --> `mamit_trnadb`  
+
+
+```{bash, eval=eval_sh}
+pwd
+dir="large_files/hugo/"
+
+colnames="hgnc_id\tsymbol\tname\tlocus_group\tlocus_type\tstatus\tlocation\tlocation_sortable\talias_symbol\talias_name\tprev_symbol\tprev_name\tgene_family\tgene_family_id\tdate_approved_reserved\tdate_symbol_changed\tdate_name_changed\tdate_modified\tentrez_id\tensembl_gene_id\tvega_id\tucsc_id\tena\trefseq_accession\tccds_id\tuniprot_ids\tpubmed_id\tmgd_id\trgd_id\tlsdb\tcosmic\tomim_id\tmirbase\thomeodb\tsnornabase\tbioparadigms_slc\torphanet\tpseudogene\thorde_id\tmerops\timgt\tiuphar\tkznf_gene_catalog\tmamit_trnadb\tcd\tlncrnadb\tenzyme_id\tintermediate_filament_db\trna_central_ids\tlncipedia\tgtrnadb\tagr\tmane_select\tgencc"
+
+### replace first line with new colnames in place
+sed -i "1c$colnames" ${dir}/hugo_complete_set.tsv 
+
+head -n1 ${dir}/hugo_complete_set.tsv | tr "\t" "\n"
+```
+
+## HUGO Data Dictionary
+```{r}
+archived_schema = '
+hgnc_id = HGNC ID. A unique ID created by the HGNC for every approved symbol. 
+
+symbol = The HGNC approved gene symbol. Equates to the
+                           "APPROVED SYMBOL" field within the gene symbol
+                           report.
+
+name                     = HGNC approved name for the gene. Equates to the
+                           "APPROVED NAME" field within the gene symbol report.
+
+locus_group              = A group name for a set of related locus types as
+                           defined by the HGNC (e.g. non-coding RNA).
+
+locus_type               = The locus type as defined by the HGNC (e.g. RNA,
+                           transfer).
+
+status                   = Status of the symbol report, which can be either
+                           "Approved" or "Entry Withdrawn".
+
+location                 = Cytogenetic location of the gene (e.g. 2q34).
+
+location_sortable        = Same as "location" but single digit chromosomes are
+                           prefixed with a 0 enabling them to be sorted in
+                           correct numerical order (e.g. 02q34).
+
+alias_symbol             = Other symbols used to refer to this gene as seen in
+                           the "SYNONYMS" field in the symbol report. 
+
+alias_name               = Other names used to refer to this gene as seen in
+                           the "SYNONYMS" field in the gene symbol report.
+
+prev_symbol              = Symbols previously approved by the HGNC for this
+                           gene. Equates to the "PREVIOUS SYMBOLS & NAMES" field
+                           within the gene symbol report.
+
+prev_name                = Gene names previously approved by the HGNC for this
+                           gene. Equates to the "PREVIOUS SYMBOLS & NAMES" field
+                           within the gene symbol report.
+
+gene_family              = Name given to a gene family or group the gene has been
+                           assigned to. Equates to the "GENE FAMILY" field within
+                           the gene symbol report.
+
+gene_family_id           = ID used to designate a gene family or group the gene
+                           has been assigned to.
+
+date_approved_reserved   = The date the entry was first approved.
+
+date_symbol_changed      = The date the gene symbol was last changed.
+
+date_name_changed        = The date the gene name was last changed.
+
+date_modified            = Date the entry was last modified.
+
+entrez_id                = Entrez gene ID. Found within the "GENE RESOURCES"
+                           section of the gene symbol report.
+
+ensembl_gene_id          = Ensembl gene ID. Found within the "GENE RESOURCES"
+                           section of the gene symbol report.
+
+vega_id                  = Vega gene ID. Found within the "GENE RESOURCES"
+                           section of the gene symbol report.
+
+ucsc_id                  = UCSC gene ID. Found within the "GENE RESOURCES"
+                           section of the gene symbol report.
+
+ena                      = International Nucleotide Sequence Database
+                           Collaboration (GenBank, ENA and DDBJ) accession
+                           number(s). Found within the "NUCLEOTIDE SEQUENCES"
+                           section of the gene symbol report.
+
+refseq_accession         = RefSeq nucleotide accession(s). Found within the
+                           "NUCLEOTIDE SEQUENCES" section of the gene symbol
+                           report.
+
+ccds_id                  = Consensus CDS ID. Found within the
+                           "NUCLEOTIDE SEQUENCES" section of the gene symbol
+                           report.
+
+uniprot_ids              = UniProt protein accession. Found within the
+                           "PROTEIN RESOURCES" section of the gene symbol
+                           report.
+
+pubmed_id                = Pubmed and Europe Pubmed Central PMID(s).
+
+mgd_id                   = Mouse genome informatics database ID. Found within
+                           the "HOMOLOGS" section of the gene symbol report.
+
+rgd_id                   = Rat genome database gene ID. Found within the
+                           "HOMOLOGS" section of the gene symbol report.
+
+lsdb                     = The name of the Locus Specific Mutation Database and
+                           URL for the gene separated by a | character
+
+cosmic                   = Symbol used within the Catalogue of somatic
+                           mutations in cancer for the gene.
+
+omim_id                  = Online Mendelian Inheritance in Man (OMIM) ID
+
+mirbase                  = miRBase ID
+
+homeodb                  = Homeobox Database ID
+
+snornabase               = snoRNABase ID
+
+bioparadigms_slc         = Symbol used to link to the SLC tables database at
+                           bioparadigms.org for the gene
+
+orphanet                 = Orphanet ID
+
+pseudogene.org           = Pseudogene.org
+
+horde_id                 = Symbol used within HORDE for the gene
+
+merops                   = ID used to link to the MEROPS peptidase database
+
+imgt                     = Symbol used within international ImMunoGeneTics
+                           information system
+
+iuphar                   = The objectId used to link to the IUPHAR/BPS Guide to
+                           PHARMACOLOGY database. To link to IUPHAR/BPS Guide
+                           to PHARMACOLOGY database only use the number
+                           (only use 1 from the result objectId:1)
+
+kznf_gene_catalog        = ID used to link to the Human KZNF Gene Catalog
+
+mamit-trnadb             = ID to link to the Mamit-tRNA database
+
+cd                       = Symbol used within the Human Cell Differentiation
+                           Molecule database for the gene
+
+lncrnadb                 = lncRNA Database ID
+
+enzyme_id                = ENZYME EC accession number
+
+intermediate_filament_db = ID used to link to the Human Intermediate Filament
+                           Database
+
+agr                      = The HGNC ID that the Alliance of Genome Resources
+                           (AGR) have linked to their record of the gene. Use
+                           the HGNC ID to link to the AGR.
+
+mane_select              = NCBI and Ensembl transcript IDs/acessions
+                           including the version number for one high-quality
+                           representative transcript per protein-coding gene
+                           that is well-supported by experimental data and
+                           represents the biology of the gene. The IDs are
+                           delimited by |.
+'
+```
+
+
+Use `curl` to download data using the form at https://www.genenames.org/cgi-bin/download/custo
+
+```{bash, eval=eval_sh}
+pwd
+```
+
+
+# Set Up BigQuery
+```{r}
+bq_deauth()
+bq_auth(email="ariel.balter@providence.org")
+
+# cancer_graph_project = "psjh-238522"
+cancer_graph_project = "eacri-cancer-graph"
+dataset = "hugo"
+```
+
+# Create dataset
+```{r}
+gdsc_dataset = bq_dataset(cancer_graph_project, dataset)
+
+if (bq_dataset_exists(gdsc_dataset))
+{
+  bq_dataset_delete(gdsc_dataset, delete_contents = T)
+}
+
+bq_dataset_create(gdsc_dataset)
+
+
+gdsc_conn = dbConnect(
+  bigrquery::bigquery(),
+  project = cancer_graph_project,
+  dataset = dataset
+)
+```
+
+
+# Upload with Schema
+## Upload Function
+```{r}
+
+arrayToJSON = function(data)
+{
+  lapply(data, function(x)
+  {
+    if (is.na(x))
+    {
+      c("")
+    } else
+    {
+      str_split(x, ",")[[1]]
+    }
+  })
+}
+
+type_map = list(
+  INTEGER = "integer",
+  FLOAT = "double",
+  STRING = "character",
+  DATE = "Date"
+)
+
+
+bqFieldsToColClasses = function(field_list)
+{
+  
+  # print(fields)
+  
+  col_classes = lapply(field_list, function(field)
+  {
+    type_map[[field$type]];
+  })
+  
+  names(col_classes) = lapply(field_list, function(field)
+  {
+    field$name
+  })
+  
+  # print(col_classezs)
+  
+  return(col_classes)
+}
+
+#gsub("([^,])",'"\\1"', s) %>% sprintf("[%s]",.)
+
+uploadToBQ = function(filename, schema, sep=",")
+{
+  
+  repeated_fields = ""
+    
+  df = read.csv(
+    file=here(filename),
+    colClasses = bqFieldsToColClasses(schema),
+    stringsAsFactors = F,
+    sep=sep
+  ) %>% 
+  mutate(across(!repeated_fields, arrayToJSON))
+  
+  table_bq = bq_table(
+    project = gdsc_dataset$project, 
+    dataset = gdsc_dataset$dataset, 
+    table = basename(filename) %>% str_remove(".csv")
+  )
+  
+  if (bq_table_exists(table_bq))
+  {
+    bq_table_delete(table_bq)
+  }
+  
+  bq_table_upload(
+    table_bq,
+    quiet = FALSE,
+    values = df,
+    fields=schema
+  )
+}
+
+
+```
+
+## HUGO Schema
+```{r}
+hugo_fiels = list(
+  bq_field(name="hgnc_id", type="string", description="TBD"),
+  bq_field(name="symbol", type="string", description="TBD"),
+  bq_field(name="name", type="string", description="TBD"),
+  bq_field(name="locus_group", type="string", description="TBD"),
+  bq_field(name="locus_type", type="string", description="TBD"),
+  bq_field(name="status", type="string", description="TBD"),
+  bq_field(name="location", type="string", description="TBD"),
+  bq_field(name="location_sortable", type="string", description="TBD"),
+  bq_field(name="alias_symbol", type="string", description="TBD"),
+  bq_field(name="alias_name", type="string", description="TBD"),
+  bq_field(name="prev_symbol", type="string", description="TBD"),
+  bq_field(name="prev_name", type="string", description="TBD"),
+  bq_field(name="gene_family", type="string", description="TBD"),
+  bq_field(name="gene_family_id", type="string", description="TBD"),
+  bq_field(name="date_approved_reserved", type="Date", description="TBD"),
+  bq_field(name="date_symbol_changed", type="Date", description="TBD"),
+  bq_field(name="date_name_changed", type="Date", description="TBD"),
+  bq_field(name="date_modified", type="Date", description="TBD"),
+  bq_field(name="entrez_id", type="string", description="TBD"),
+  bq_field(name="ensembl_gene_id", type="string", description="TBD"),
+  bq_field(name="vega_id", type="string", description="TBD"),
+  bq_field(name="ucsc_id", type="string", description="TBD"),
+  bq_field(name="ena", type="string", description="TBD"),
+  bq_field(name="refseq_accession", type="string", description="TBD"),
+  bq_field(name="ccds_id", type="string", description="TBD"),
+  bq_field(name="uniprot_ids", type="string", description="TBD"),
+  bq_field(name="pubmed_id", type="string", description="TBD"),
+  bq_field(name="mgd_id", type="string", description="TBD"),
+  bq_field(name="rgd_id", type="string", description="TBD"),
+  bq_field(name="lsdb", type="string", description="TBD"),
+  bq_field(name="cosmic", type="string", description="TBD"),
+  bq_field(name="omim_id", type="string", description="TBD"),
+  bq_field(name="mirbase", type="string", description="TBD"),
+  bq_field(name="homeodb", type="string", description="TBD"),
+  bq_field(name="snornabase", type="string", description="TBD"),
+  bq_field(name="bioparadigms_slc", type="string", description="TBD"),
+  bq_field(name="orphanet", type="string", description="TBD"),
+  bq_field(name="pseudogene", type="string", description="TBD"),
+  bq_field(name="horde_id", type="string", description="TBD"),
+  bq_field(name="merops", type="string", description="TBD"),
+  bq_field(name="imgt", type="string", description="TBD"),
+  bq_field(name="iuphar", type="string", description="TBD"),
+  bq_field(name="kznf_gene_catalog", type="string", description="TBD"),
+  bq_field(name="mamit-trnadb", type="string", description="TBD"),
+  bq_field(name="cd", type="string", description="TBD"),
+  bq_field(name="lncrnadb", type="string", description="TBD"),
+  bq_field(name="enzyme_id", type="string", description="TBD"),
+  bq_field(name="intermediate_filament_db", type="string", description="TBD"),
+  bq_field(name="rna_central_ids", type="string", description="TBD"),
+  bq_field(name="lncipedia", type="string", description="TBD"),
+  bq_field(name="gtrnadb", type="string", description="TBD"),
+  bq_field(name="agr", type="string", description="TBD"),
+  bq_field(name="mane_select", type="string", description="TBD"),
+  bq_field(name="gencc", type="string", description="TBD")
+)
+
+```
+
+
+### Upload
+```{r}
+
+df = read.delim(
+    file=here("large_files/hugo/hugo_complete_set.tsv"),
+    colClasses = bqFieldsToColClasses(hugo_fields),
+    sep="\t",
+    strip.white = T,
+    na.strings = "",
+    stringsAsFactors = F
+  )
+
+table_bq = bq_table(cancer_graph_project, dataset, "hugo")
+
+if (bq_table_exists(table_bq))
+{
+  bq_table_delete(table_bq)
+}
+
+bq_table_upload(
+  table_bq,
+  quiet = FALSE,
+  values = df,
+  fields=hugo_fields
+)
+```

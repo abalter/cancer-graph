@@ -1,0 +1,59 @@
+---
+title: "approved_cancer_drugs"
+author: "Ariel Balter"
+date: "1/3/2022"
+output: html_notebook
+editor_options: 
+  chunk_output_type: inline
+---
+
+Drugs Approved for Breast Cancer - National Cancer Institute
+https://www.cancer.gov/about-cancer/treatment/drugs/breast
+
+Oncology (Cancer) / Hematologic Malignancies Approval Notifications | FDA
+https://www.fda.gov/drugs/resources-information-approved-drugs/oncology-cancer-hematologic-malignancies-approval-notifications
+
+2020 FDA Approvals of Drugs for Cancer Treatment - The ASCO Post
+https://ascopost.com/issues/december-25-2020/2020-fda-approvals-of-drugs-for-cancer-treatment/
+
+A systematic analysis of FDA-approved anticancer drugs
+https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5629554/
+
+Predicting cancer drug TARGETS - TreAtment Response Generalized Elastic-neT Signatures | npj Genomic Medicine
+https://www.nature.com/articles/s41525-021-00239-z
+
+Frontiers | An Open Access Database of Licensed Cancer Drugs | Pharmacology
+https://www.frontiersin.org/articles/10.3389/fphar.2021.627574/full
+
+Cancer Drugs Database | Anticancerfund
+https://www.anticancerfund.org/en/cancerdrugs-db
+
+Abemaciclib: Uses, Interactions, Mechanism of Action | DrugBank Online
+https://go.drugbank.com/drugs/DB12001
+
+Compound Report Card
+https://www.ebi.ac.uk/chembl/compound_report_card/CHEMBL3301610/
+
+Therapeutic target database 2020: enriched resource for facilitating research and early development of targeted therapeutics | Nucleic Acids Research | Oxford Academic
+https://academic.oup.com/nar/article/48/D1/D1031/5613683
+
+A Milestone for Precision Oncology: FDA Gives Green Light to MSK’s Genetic Database | Memorial Sloan Kettering Cancer Center
+https://www.mskcc.org/news/milestone-precision-oncology-fda-gives-green-light-msk-s-genetic-database
+
+OncoKB - MSK's Precision Oncology Knowledge Base
+https://www.oncokb.org/
+
+A systematic analysis of FDA-approved anticancer drugs | BMC Systems Biology | Full Text
+https://bmcsystbiol.biomedcentral.com/articles/10.1186/s12918-017-0464-7
+
+Targeted Therapies - My Cancer Genome
+https://www.mycancergenome.org/content/page/overview-of-targeted-therapies-for-cancer/
+
+Druggable genome and precision medicine in cancer: current challenges - Dupont - 2021 - The FEBS Journal - Wiley Online Library
+https://febs.onlinelibrary.wiley.com/doi/full/10.1111/febs.15788
+
+FDA Clears NYU Langone Genome PACT | NYU Langone News
+https://nyulangone.org/news/fda-clears-nyu-langone-genome-pact
+
+Emerging oncology drug targets in the 21st century: An FDA analysis. | Journal of Clinical Oncology
+https://ascopubs.org/doi/abs/10.1200/JCO.2020.38.15_suppl.e14067

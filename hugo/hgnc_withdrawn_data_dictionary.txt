@@ -1,0 +1,8 @@
+HGNC_ID               = The HGNC ID of the withdrawn record.
+STATUS                = Can either be "Entry Withdrawn" or "Merged/Split"
+WITHDRAWN_SYMBOL      = The symbol of the withdrawn record.
+MERGED_INTO_REPORT(S) = Shows what record(s) replaced the withdrawn record if the
+status is "Merged/Split". Each replacement has the format
+HGNC_ID|SYMBOL|STATUS. If the withdrawn record is split,
+their will be more than one replacement and they will be
+comma separated.

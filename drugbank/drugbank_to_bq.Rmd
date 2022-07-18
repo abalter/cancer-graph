@@ -1,0 +1,172 @@
+---
+title: "Upload Anticancerfund"
+author: "Ariel Balter"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: html_notebook
+editor_options: 
+  chunk_output_type: inline
+---
+
+# Knitr
+```{r, include=F}
+knitr::opts_chunk$set(
+  warning=F,
+  message=F,
+  echo=F,
+  error=F,
+  number_section=T,
+  include=F
+)
+```
+
+# Libraries
+```{r, include=F}
+# Load Libraries
+library(vroom)
+library(tidyverse)
+library(magrittr)
+library(ggplot2)
+library(ggbeeswarm)
+library(ggtext)
+library(knitr)
+library(printr)
+# library(kableExtra)
+library(flextable)
+library(DT)
+library(here)
+library(DBI)
+library(bigrquery)
+library(jsonlite)
+```
+
+
+
+# Set Up BigQuery
+```{r}
+bq_deauth()
+bq_auth(email="ariel.balter@providence.org")
+
+# cancer_graph_project = "psjh-238522"
+cancer_graph_project = "eacri-cancer-graph"
+raw_dataset = "drug_bank"
+graph_ready_dataset = "drug_bank"
+```
+set
+```{r}
+
+# Create data
+# bq_dataset_create(paste(cancer_graph_project, graph_ready_dataset, sep="."))
+```
+
+
+
+# Download Data
+https://go.drugbank.com/
+
+## Raw
+```{r}
+filename = "large_files/drug_bank/drugbank_vocabulary.csv"
+
+drugbank_raw = vroom(filename)
+```
+
+## Clean
+```{r}
+drugbank = 
+  drugbank_raw %>% 
+  rename_with(function(x)
+  {
+    x %>% 
+      str_replace_all(" ", "_") %>% 
+      tolower()
+  }) %>% 
+  # mutate(across(c(accession_numbers, synonyms), ~str_split(., "\\|") %>% trimws()))
+  mutate(
+    accession_numbers = 
+      ifelse(is.na(accession_numbers), "", str_split(accession_numbers, "\\s+\\|\\s+")),
+    synonyms = 
+      ifelse(is.na(synonyms), "", str_split(synonyms, "\\s+\\|\\s+"))
+  )
+
+```
+
+
+## Upload
+```{r}
+
+drugbank_bq_fields = list(
+  bq_field(
+    name="drugbank_id",
+    type="string",
+    description="TBD"
+  ),
+  bq_field(
+    name="accession_numbers",
+    type="string",
+    mode="repeated",
+    description="TBD"
+  ),
+  bq_field(
+    name="common_name",
+    type="string",
+    description="TBD"
+  ),
+  bq_field(
+    name="cas",
+    type="string",
+    description="TBD"
+  ),
+  bq_field(
+    name="unii",
+    type="string",
+    description="TBD"
+  ),
+  bq_field(
+    name="synonyms",
+    type="string",
+    mode="repeated",
+    description="TBD"
+  ),
+  bq_field(
+    name="standard_inchi_key",
+    type="string",
+    description="TBD"
+  )
+)
+
+
+cancer_graph_project = "eacri-cancer-graph"
+
+table_bq = bq_table(cancer_graph_project, graph_ready_dataset, "drug_bank_synonyms")
+dataset_bq = bq_dataset(cancer_graph_project, graph_ready_dataset)
+
+if (bq_table_exists(table_bq))
+{
+  bq_table_delete(table_bq)
+}
+
+if (!bq_dataset_exists(dataset_bq))
+{
+  bq_dataset_create(dataset_bq)
+}
+
+bq_table_upload(
+  table_bq,
+  quiet = FALSE,
+  values = drugbank,
+  fields = drugbank_bq_fields,
+  create_disposition = "CREATE_IF_NEEDED",
+  write_disposition = "WRITE_TRUNCATE"
+)
+
+# bq_perform_upload(
+#   table_bq,
+#   drugbank,
+#   fields = drugbank_bq_fields,
+#   create_disposition = "CREATE_IF_NEEDED",
+#   write_disposition = "WRITE_TRUNCATE",
+#   billing = cancer_graph_project
+# )
+```
+
+
