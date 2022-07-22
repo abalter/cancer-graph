@@ -1765,7 +1765,7 @@ pre code {
 
 <h1 class="title toc-ignore">Parse Drugbank XML</h1>
 <h4 class="author">Ariel Balter</h4>
-<h4 class="date">25 May, 2022</h4>
+<h4 class="date">20 July, 2022</h4>
 
 </div>
 
@@ -1779,16 +1779,12 @@ pre code {
 <div id="libraries" class="section level1">
 <h1>Libraries</h1>
 <!-- rnb-text-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgYmFzaFxubWtkaXIgLXAgRHJ1Z0JhbmsvbGFyZ2VfZmlsZXhcbmBgYCJ9 -->
-<pre class="bash"><code>mkdir -p DrugBank/large_filex</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgYmFzaFxubWtkaXIgLXAgbGFyZ2VfZmlsZXNcbmBgYCJ9 -->
+<pre class="bash"><code>mkdir -p large_files</code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiJ1xcXFx3c2wubG9jYWxob3N0XFxVYnVudHVcXGhvbWVcXGJhbHRlclxcQ2FuY2VyR3JhcGgnXG5DTUQuRVhFIHdhcyBzdGFydGVkIHdpdGggdGhlIGFib3ZlIHBhdGggYXMgdGhlIGN1cnJlbnQgZGlyZWN0b3J5LlxuVU5DIHBhdGhzIGFyZSBub3Qgc3VwcG9ydGVkLiAgRGVmYXVsdGluZyB0byBXaW5kb3dzIGRpcmVjdG9yeS5cbm1rZGlyOiBjYW5ub3QgY3JlYXRlIGRpcmVjdG9yeSDigJhEcnVnQmFua+KAmTogUGVybWlzc2lvbiBkZW5pZWRcbiJ9 -->
-<pre><code>&#39;\\wsl.localhost\Ubuntu\home\balter\CancerGraph&#39;
-CMD.EXE was started with the above path as the current directory.
-UNC paths are not supported.  Defaulting to Windows directory.
-mkdir: cannot create directory ‘DrugBank’: Permission denied</code></pre>
-<!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 </div>
@@ -1796,101 +1792,13 @@ mkdir: cannot create directory ‘DrugBank’: Permission denied</code></pre>
 <h1>Download the Schema (XSD)</h1>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgYmFzaFxuY3VybCBcXFxuICAtTGZ2IFxcXG4gIC1vIGZpbGVuYW1lLnppcCBcXFxuICAtdSBhcmllbC5iYWx0ZXJAcHJvdmlkZW5jZS5vcmc6VGhyZWVTaXhAXjMgXFxcbiAgaHR0cHM6Ly9nby5kcnVnYmFuay5jb20vZG9jcy9kcnVnYmFuay54c2RcbmBgYCJ9 -->
-<pre class="bash"><code>curl \
-  -Lfv \
-  -o filename.zip \
-  -u ariel.balter@providence.org:ThreeSix@^3 \
-  https://go.drugbank.com/docs/drugbank.xsd</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgYmFzaFxuI2N1cmwgXFxcbiMgIC1MZnYgXFxcbiMgIC1vIERydWdCYW5rL2xhcmdlX2ZpbGVzL2RydWdiYW5rX3hzZC56aXAgXFxcbiMgIC11IGFyaWVsLmJhbHRlckBwcm92aWRlbmNlLm9yZzpUaHJlZVNpeEBeMyBcXFxuIyAgaHR0cHM6Ly9nby5kcnVnYmFuay5jb20vZG9jcy9kcnVnYmFuay54c2RcbmBgYCJ9 -->
+<pre class="bash"><code>#curl \
+#  -Lfv \
+#  -o DrugBank/large_files/drugbank_xsd.zip \
+#  -u ariel.balter@providence.org:ThreeSix@^3 \
+#  https://go.drugbank.com/docs/drugbank.xsd</code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiJ1xcXFx3c2wubG9jYWxob3N0XFxVYnVudHVcXGhvbWVcXGJhbHRlclxcQ2FuY2VyR3JhcGgnXG5DTUQuRVhFIHdhcyBzdGFydGVkIHdpdGggdGhlIGFib3ZlIHBhdGggYXMgdGhlIGN1cnJlbnQgZGlyZWN0b3J5LlxuVU5DIHBhdGhzIGFyZSBub3Qgc3VwcG9ydGVkLiAgRGVmYXVsdGluZyB0byBXaW5kb3dzIGRpcmVjdG9yeS5cbiAgJSBUb3RhbCAgICAlIFJlY2VpdmVkICUgWGZlcmQgIEF2ZXJhZ2UgU3BlZWQgICBUaW1lICAgIFRpbWUgICAgIFRpbWUgIEN1cnJlbnRcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIERsb2FkICBVcGxvYWQgICBUb3RhbCAgIFNwZW50ICAgIExlZnQgIFNwZWVkXG5cbiAgMCAgICAgMCAgICAwICAgICAwICAgIDAgICAgIDAgICAgICAwICAgICAgMCAtLTotLTotLSAtLTotLTotLSAtLTotLTotLSAgICAgMCogICBUcnlpbmcgMTcyLjY2LjQyLjI1MDo0NDMuLi5cbiogVENQX05PREVMQVkgc2V0XG4qIENvbm5lY3RlZCB0byBnby5kcnVnYmFuay5jb20gKDE3Mi42Ni40Mi4yNTApIHBvcnQgNDQzICgjMClcbiogQUxQTiwgb2ZmZXJpbmcgaDJcbiogQUxQTiwgb2ZmZXJpbmcgaHR0cC8xLjFcbiogc3VjY2Vzc2Z1bGx5IHNldCBjZXJ0aWZpY2F0ZSB2ZXJpZnkgbG9jYXRpb25zOlxuKiAgIENBZmlsZTogL2V0Yy9zc2wvY2VydHMvY2EtY2VydGlmaWNhdGVzLmNydFxuICBDQXBhdGg6IC9ldGMvc3NsL2NlcnRzXG59IFs1IGJ5dGVzIGRhdGFdXG4qIFRMU3YxLjMgKE9VVCksIFRMUyBoYW5kc2hha2UsIENsaWVudCBoZWxsbyAoMSk6XG59IFs1MTIgYnl0ZXMgZGF0YV1cbiogVExTdjEuMyAoSU4pLCBUTFMgaGFuZHNoYWtlLCBTZXJ2ZXIgaGVsbG8gKDIpOlxueyBbMTIyIGJ5dGVzIGRhdGFdXG4qIFRMU3YxLjMgKElOKSwgVExTIGhhbmRzaGFrZSwgRW5jcnlwdGVkIEV4dGVuc2lvbnMgKDgpOlxueyBbMTkgYnl0ZXMgZGF0YV1cbiogVExTdjEuMyAoSU4pLCBUTFMgaGFuZHNoYWtlLCBDZXJ0aWZpY2F0ZSAoMTEpOlxueyBbMjM2MiBieXRlcyBkYXRhXVxuKiBUTFN2MS4zIChJTiksIFRMUyBoYW5kc2hha2UsIENFUlQgdmVyaWZ5ICgxNSk6XG57IFs3OSBieXRlcyBkYXRhXVxuKiBUTFN2MS4zIChJTiksIFRMUyBoYW5kc2hha2UsIEZpbmlzaGVkICgyMCk6XG57IFs1MiBieXRlcyBkYXRhXVxuKiBUTFN2MS4zIChPVVQpLCBUTFMgY2hhbmdlIGNpcGhlciwgQ2hhbmdlIGNpcGhlciBzcGVjICgxKTpcbn0gWzEgYnl0ZXMgZGF0YV1cbiogVExTdjEuMyAoT1VUKSwgVExTIGhhbmRzaGFrZSwgRmluaXNoZWQgKDIwKTpcbn0gWzUyIGJ5dGVzIGRhdGFdXG4qIFNTTCBjb25uZWN0aW9uIHVzaW5nIFRMU3YxLjMgLyBUTFNfQUVTXzI1Nl9HQ01fU0hBMzg0XG4qIEFMUE4sIHNlcnZlciBhY2NlcHRlZCB0byB1c2UgaDJcbiogU2VydmVyIGNlcnRpZmljYXRlOlxuKiAgc3ViamVjdDogQz1VUzsgU1Q9Q2FsaWZvcm5pYTsgTD1TYW4gRnJhbmNpc2NvOyBPPUNsb3VkZmxhcmUsIEluYy47IENOPWRydWdiYW5rLmNvbVxuKiAgc3RhcnQgZGF0ZTogTWF5ICAyIDAwOjAwOjAwIDIwMjIgR01UXG4qICBleHBpcmUgZGF0ZTogTWF5ICAyIDIzOjU5OjU5IDIwMjMgR01UXG4qICBzdWJqZWN0QWx0TmFtZTogaG9zdCBcImdvLmRydWdiYW5rLmNvbVwiIG1hdGNoZWQgY2VydCdzIFwiKi5kcnVnYmFuay5jb21cIlxuKiAgaXNzdWVyOiBDPVVTOyBPPUNsb3VkZmxhcmUsIEluYy47IENOPUNsb3VkZmxhcmUgSW5jIEVDQyBDQS0zXG4qICBTU0wgY2VydGlmaWNhdGUgdmVyaWZ5IG9rLlxuKiBVc2luZyBIVFRQMiwgc2VydmVyIHN1cHBvcnRzIG11bHRpLXVzZVxuKiBDb25uZWN0aW9uIHN0YXRlIGNoYW5nZWQgKEhUVFAvMiBjb25maXJtZWQpXG4qIENvcHlpbmcgSFRUUC8yIGRhdGEgaW4gc3RyZWFtIGJ1ZmZlciB0byBjb25uZWN0aW9uIGJ1ZmZlciBhZnRlciB1cGdyYWRlOiBsZW49MFxufSBbNSBieXRlcyBkYXRhXVxuKiBTZXJ2ZXIgYXV0aCB1c2luZyBCYXNpYyB3aXRoIHVzZXIgJ2FyaWVsLmJhbHRlckBwcm92aWRlbmNlLm9yZydcbiogVXNpbmcgU3RyZWFtIElEOiAxIChlYXN5IGhhbmRsZSAweDU1NzRhZDk0NjhjMClcbn0gWzUgYnl0ZXMgZGF0YV1cbj4gR0VUIC9kb2NzL2RydWdiYW5rLnhzZCBIVFRQLzJcbj4gSG9zdDogZ28uZHJ1Z2JhbmsuY29tXG4+IGF1dGhvcml6YXRpb246IEJhc2ljIFlYSnBaV3d1WW1Gc2RHVnlRSEJ5YjNacFpHVnVZMlV1YjNKbk9sUm9jbVZsVTJsNFFGNHpcbj4gdXNlci1hZ2VudDogY3VybC83LjY4LjBcbj4gYWNjZXB0OiAqLypcbj4gXG57IFs1IGJ5dGVzIGRhdGFdXG4qIFRMU3YxLjMgKElOKSwgVExTIGhhbmRzaGFrZSwgTmV3c2Vzc2lvbiBUaWNrZXQgKDQpOlxueyBbMjM4IGJ5dGVzIGRhdGFdXG4qIFRMU3YxLjMgKElOKSwgVExTIGhhbmRzaGFrZSwgTmV3c2Vzc2lvbiBUaWNrZXQgKDQpOlxueyBbMjM4IGJ5dGVzIGRhdGFdXG4qIG9sZCBTU0wgc2Vzc2lvbiBJRCBpcyBzdGFsZSwgcmVtb3ZpbmdcbnsgWzUgYnl0ZXMgZGF0YV1cbiogQ29ubmVjdGlvbiBzdGF0ZSBjaGFuZ2VkIChNQVhfQ09OQ1VSUkVOVF9TVFJFQU1TID09IDI1NikhXG59IFs1IGJ5dGVzIGRhdGFdXG48IEhUVFAvMiAyMDAgXG48IGRhdGU6IFR1ZSwgMjQgTWF5IDIwMjIgMTI6MTI6MjggR01UXG48IGNvbnRlbnQtdHlwZTogYXBwbGljYXRpb24vb2N0ZXQtc3RyZWFtXG48IGNvbnRlbnQtbGVuZ3RoOiA0MzE1MVxuPCBsYXN0LW1vZGlmaWVkOiBGcmksIDIwIE1heSAyMDIyIDA3OjQ4OjI1IEdNVFxuPCBldGFnOiBcIjYyODc0N2M5LWE4OGZcIlxuPCBhY2NlcHQtcmFuZ2VzOiBieXRlc1xuPCBjZi1jYWNoZS1zdGF0dXM6IERZTkFNSUNcbjwgZXhwZWN0LWN0OiBtYXgtYWdlPTYwNDgwMCwgcmVwb3J0LXVyaT1cImh0dHBzOi8vcmVwb3J0LXVyaS5jbG91ZGZsYXJlLmNvbS9jZG4tY2dpL2JlYWNvbi9leHBlY3QtY3RcIlxuPCByZXBvcnQtdG86IHtcImVuZHBvaW50c1wiOlt7XCJ1cmxcIjpcImh0dHBzOlxcL1xcL2EubmVsLmNsb3VkZmxhcmUuY29tXFwvcmVwb3J0XFwvdjM/cz14ZG81OFAwdXl5JTJCNVNPdjdtSkRCUjlTSElIaFdqVzRrRUlOZkc0ayUyQm1EWDNVeGRrM3ZFZ2NvU016OUZpVm5oUEZ4Y1NiaGVUd2hxd2IxRVlSJTJCS2VwSmx4VTVxQjFrckZ0WE1jQWc4VHlQMUpyclB0azJ1WkExV3l6S3BCblE3Nk9BJTNEJTNEXCJ9XSxcImdyb3VwXCI6XCJjZi1uZWxcIixcIm1heF9hZ2VcIjo2MDQ4MDB9XG48IG5lbDoge1wic3VjY2Vzc19mcmFjdGlvblwiOjAsXCJyZXBvcnRfdG9cIjpcImNmLW5lbFwiLFwibWF4X2FnZVwiOjYwNDgwMH1cbjwgc2VydmVyOiBjbG91ZGZsYXJlXG48IGNmLXJheTogNzEwNWYwOThhYjhhOGU2Yy1QRFhcbjwgYWx0LXN2YzogaDM9XCI6NDQzXCI7IG1hPTg2NDAwLCBoMy0yOT1cIjo0NDNcIjsgbWE9ODY0MDBcbjwgXG57IFs4MTUgYnl0ZXMgZGF0YV1cbldhcm5pbmc6IEZhaWxlZCB0byBjcmVhdGUgdGhlIGZpbGUgZmlsZW5hbWUuemlwOiBQZXJtaXNzaW9uIGRlbmllZFxuKiBGYWlsZWQgd3JpdGluZyBib2R5ICgwICE9IDgxNSlcbn0gWzUgYnl0ZXMgZGF0YV1cbiogc3RvcHBlZCB0aGUgcGF1c2Ugc3RyZWFtIVxuXG4gIDEgNDMxNTEgICAgMSAgIDgxNSAgICAwICAgICAwICAgMzQ5NyAgICAgIDAgIDA6MDA6MTIgLS06LS06LS0gIDA6MDA6MTIgIDM1MjhcbiogQ29ubmVjdGlvbiAjMCB0byBob3N0IGdvLmRydWdiYW5rLmNvbSBsZWZ0IGludGFjdFxuY3VybDogKDIzKSBGYWlsZWQgd3JpdGluZyBib2R5ICgwICE9IDgxNSlcbiJ9 -->
-<pre><code>&#39;\\wsl.localhost\Ubuntu\home\balter\CancerGraph&#39;
-CMD.EXE was started with the above path as the current directory.
-UNC paths are not supported.  Defaulting to Windows directory.
-  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
-                                 Dload  Upload   Total   Spent    Left  Speed
-
-  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0*   Trying 172.66.42.250:443...
-* TCP_NODELAY set
-* Connected to go.drugbank.com (172.66.42.250) port 443 (#0)
-* ALPN, offering h2
-* ALPN, offering http/1.1
-* successfully set certificate verify locations:
-*   CAfile: /etc/ssl/certs/ca-certificates.crt
-  CApath: /etc/ssl/certs
-} [5 bytes data]
-* TLSv1.3 (OUT), TLS handshake, Client hello (1):
-} [512 bytes data]
-* TLSv1.3 (IN), TLS handshake, Server hello (2):
-{ [122 bytes data]
-* TLSv1.3 (IN), TLS handshake, Encrypted Extensions (8):
-{ [19 bytes data]
-* TLSv1.3 (IN), TLS handshake, Certificate (11):
-{ [2362 bytes data]
-* TLSv1.3 (IN), TLS handshake, CERT verify (15):
-{ [79 bytes data]
-* TLSv1.3 (IN), TLS handshake, Finished (20):
-{ [52 bytes data]
-* TLSv1.3 (OUT), TLS change cipher, Change cipher spec (1):
-} [1 bytes data]
-* TLSv1.3 (OUT), TLS handshake, Finished (20):
-} [52 bytes data]
-* SSL connection using TLSv1.3 / TLS_AES_256_GCM_SHA384
-* ALPN, server accepted to use h2
-* Server certificate:
-*  subject: C=US; ST=California; L=San Francisco; O=Cloudflare, Inc.; CN=drugbank.com
-*  start date: May  2 00:00:00 2022 GMT
-*  expire date: May  2 23:59:59 2023 GMT
-*  subjectAltName: host &quot;go.drugbank.com&quot; matched cert&#39;s &quot;*.drugbank.com&quot;
-*  issuer: C=US; O=Cloudflare, Inc.; CN=Cloudflare Inc ECC CA-3
-*  SSL certificate verify ok.
-* Using HTTP2, server supports multi-use
-* Connection state changed (HTTP/2 confirmed)
-* Copying HTTP/2 data in stream buffer to connection buffer after upgrade: len=0
-} [5 bytes data]
-* Server auth using Basic with user &#39;ariel.balter@providence.org&#39;
-* Using Stream ID: 1 (easy handle 0x5574ad9468c0)
-} [5 bytes data]
-&gt; GET /docs/drugbank.xsd HTTP/2
-&gt; Host: go.drugbank.com
-&gt; authorization: Basic YXJpZWwuYmFsdGVyQHByb3ZpZGVuY2Uub3JnOlRocmVlU2l4QF4z
-&gt; user-agent: curl/7.68.0
-&gt; accept: */*
-&gt; 
-{ [5 bytes data]
-* TLSv1.3 (IN), TLS handshake, Newsession Ticket (4):
-{ [238 bytes data]
-* TLSv1.3 (IN), TLS handshake, Newsession Ticket (4):
-{ [238 bytes data]
-* old SSL session ID is stale, removing
-{ [5 bytes data]
-* Connection state changed (MAX_CONCURRENT_STREAMS == 256)!
-} [5 bytes data]
-&lt; HTTP/2 200 
-&lt; date: Tue, 24 May 2022 12:12:28 GMT
-&lt; content-type: application/octet-stream
-&lt; content-length: 43151
-&lt; last-modified: Fri, 20 May 2022 07:48:25 GMT
-&lt; etag: &quot;628747c9-a88f&quot;
-&lt; accept-ranges: bytes
-&lt; cf-cache-status: DYNAMIC
-&lt; expect-ct: max-age=604800, report-uri=&quot;https://report-uri.cloudflare.com/cdn-cgi/beacon/expect-ct&quot;
-&lt; report-to: {&quot;endpoints&quot;:[{&quot;url&quot;:&quot;https:\/\/a.nel.cloudflare.com\/report\/v3?s=xdo58P0uyy%2B5SOv7mJDBR9SHIHhWjW4kEINfG4k%2BmDX3Uxdk3vEgcoSMz9FiVnhPFxcSbheTwhqwb1EYR%2BKepJlxU5qB1krFtXMcAg8TyP1JrrPtk2uZA1WyzKpBnQ76OA%3D%3D&quot;}],&quot;group&quot;:&quot;cf-nel&quot;,&quot;max_age&quot;:604800}
-&lt; nel: {&quot;success_fraction&quot;:0,&quot;report_to&quot;:&quot;cf-nel&quot;,&quot;max_age&quot;:604800}
-&lt; server: cloudflare
-&lt; cf-ray: 7105f098ab8a8e6c-PDX
-&lt; alt-svc: h3=&quot;:443&quot;; ma=86400, h3-29=&quot;:443&quot;; ma=86400
-&lt; 
-{ [815 bytes data]
-Warning: Failed to create the file filename.zip: Permission denied
-* Failed writing body (0 != 815)
-} [5 bytes data]
-* stopped the pause stream!
-
-  1 43151    1   815    0     0   3497      0  0:00:12 --:--:--  0:00:12  3528
-* Connection #0 to host go.drugbank.com left intact
-curl: (23) Failed writing body (0 != 815)</code></pre>
-<!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 </div>
@@ -1898,20 +1806,34 @@ curl: (23) Failed writing body (0 != 815)</code></pre>
 <h1>Download the full database</h1>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgYmFzaFxuY3VybCBcXFxuICAtTGZ2IFxcXG4gIC1vIGxhcmdlX2ZpbGVzL2RydWdiYW5rX2Z1bGxfZGF0YWJhc2UuemlwIFxcXG4gIC11IGFyaWVsLmJhbHRlckBwcm92aWRlbmNlLm9yZzpUaHJlZVNpeEBeMyBcXFxuICBodHRwczovL2dvLmRydWdiYW5rLmNvbS9yZWxlYXNlcy81LTEtOS9kb3dubG9hZHMvYWxsLWZ1bGwtZGF0YWJhc2VcbmBgYCJ9 -->
-<pre class="bash"><code>curl \
-  -Lfv \
-  -o large_files/drugbank_full_database.zip \
-  -u ariel.balter@providence.org:ThreeSix@^3 \
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgYmFzaFxuI2N1cmwgXFxcbiMgIC1MZnYgXFxcbiMgIC1vIGxhcmdlX2ZpbGVzL2RydWdiYW5rX2Z1bGxfZGF0YWJhc2UuemlwIFxcXG4jICAtdSBhcmllbC5iYWx0ZXJAcHJvdmlkZW5jZS5vcmc6VGhyZWVTaXhAXjMgXFxcbiMgIGh0dHBzOi8vZ28uZHJ1Z2JhbmsuY29tL3JlbGVhc2VzLzUtMS05L2Rvd25sb2Fkcy9hbGwtZnVsbC1kYXRhYmFzZVxuICBcbndnZXQgXFxcbiAgLXEgXFxcbiAgLU8gbGFyZ2VfZmlsZXMvZHJ1Z2JhbmtfZnVsbF9kYXRhYmFzZS56aXAgXFxcbiAgLS11c2VyPVwiYXJpZWwuYmFsdGVyQHByb3ZpZGVuY2Uub3JnXCIgXFxcbiAgLS1wYXNzd29yZD1cIlRocmVlU2l4QF4zXCIgXFxcbiAgaHR0cHM6Ly9nby5kcnVnYmFuay5jb20vcmVsZWFzZXMvNS0xLTkvZG93bmxvYWRzL2FsbC1mdWxsLWRhdGFiYXNlXG5gYGAifQ== -->
+<pre class="bash"><code>#curl \
+#  -Lfv \
+#  -o large_files/drugbank_full_database.zip \
+#  -u ariel.balter@providence.org:ThreeSix@^3 \
+#  https://go.drugbank.com/releases/5-1-9/downloads/all-full-database
+  
+wget \
+  -q \
+  -O large_files/drugbank_full_database.zip \
+  --user=&quot;ariel.balter@providence.org&quot; \
+  --password=&quot;ThreeSix@^3&quot; \
   https://go.drugbank.com/releases/5-1-9/downloads/all-full-database</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgYmFzaFxud2hpY2ggcHl0aG9uXG5gYGAifQ== -->
-<pre class="bash"><code>which python</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgYmFzaFxud2hpY2ggcHl0aG9uXG5cbnVuemlwIC1vIC1kIGxhcmdlX2ZpbGVzIGxhcmdlX2ZpbGVzL2RydWdiYW5rX2Z1bGxfZGF0YWJhc2UuemlwXG5gYGAifQ== -->
+<pre class="bash"><code>which python
+
+unzip -o -d large_files large_files/drugbank_full_database.zip</code></pre>
 <!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiL2hvbWUvYmFsdGVyL2NvbmRhL2Jpbi9weXRob25cbkFyY2hpdmU6ICBsYXJnZV9maWxlcy9kcnVnYmFua19mdWxsX2RhdGFiYXNlLnppcFxuICBpbmZsYXRpbmc6IGxhcmdlX2ZpbGVzL2Z1bGwgZGF0YWJhc2UueG1sICBcbiJ9 -->
+<pre><code>/home/balter/conda/bin/python
+Archive:  large_files/drugbank_full_database.zip
+  inflating: large_files/full database.xml  </code></pre>
+<!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
@@ -1924,54 +1846,53 @@ import json</code></pre>
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgcHl0aG9uXG53aXRoIG9wZW4oXCJmdWxsX2RhdGFiYXNlLnhtbFwiKSBhcyBmOlxuICAgIHhtbCA9IHhtbHRvZGljdC5wYXJzZShmLnJlYWRsaW5lcygpKVxuXG53aXRoIG9wZW4oXCJmdWxsX2RhdGFiYXNlLnhtbFwiKSBhcyBmOlxuICAgICAgICB4bWwgPSBmLnJlYWQoKVxuICAgICAgICBcbmQgPSB4bWx0b2RpY3QucGFyc2UoeG1sLCBwcm9jZXNzX25hbWVzcGFjZXM9VHJ1ZSlcblxud2l0aCBvcGVuKFwiZnVsbF9kYXRhYmFzZS5qc29uXCIpIGFzIGY6XG4gICAgICAgIGpzb24uZHVtcChkLCBmLCBpbmRlbnQ9NCwgc29ydF9rZXlzPVRydWUpXG5jbGFzcyhkKVxudHlwZShkKVxuXG53aXRoIG9wZW4oXCJmdWxsX2RhdGFiYXNlLmpzb25cIiwgXCJ3XCIpIGFzIGY6XG4gICAgICAgIGpzb24uZHVtcChkLCBmLCBpbmRlbnQ9NCwgc29ydF9rZXlzPVRydWUpXG5kID0geG1sdG9kaWN0LnBhcnNlKHhtbCwgcHJvY2Vzc19uYW1lc3BhY2VzPUZhbHNlKVxuaW1wb3J0IHhtbHRvZGljdFxuaW1wb3J0IGpzb25cbndpdGggb3BlbihcImZ1bGxfZGF0YWJhc2UueG1sXCIpIGFzIGY6XG4gICAgICAgIHhtbCA9IGYucmVhZCgpXG5kID0geG1sdG9kaWN0LnBhcnNlKHhtbCwgcHJvY2Vzc19uYW1lc3BhY2VzPUZhbHNlKVxud2l0aCBvcGVuKFwiZnVsbF9kYXRhYmFzZS5qc29uXCIsIFwid1wiKSBhcyBmOlxuICAgICAgICBmLndyaXRlKGpzb24uZHVtcChkLCBmLCBpbmRlbnQ9NCkpXG5kID0geG1sdG9kaWN0LnBhcnNlKHhtbClcbndpdGggb3BlbihcImZ1bGxfZGF0YWJhc2UuanNvblwiLCBcIndcIikgYXMgZjpcbiAgICAgICAganNvbi5kdW1wKGQsIGYsIGluZGVudD00LCBzb3J0X2tleXM9VHJ1ZSlcbmltcG9ydCB4bWx0b2RpY3RcbmltcG9ydCBqc29uXG53aXRoIG9wZW4oXCJkcnVnYmFuay54c2RcIiwgXCJyXCIpIGFzIGY6XG4gICAgICAgIHhzZCA9IHhtbHRvZGljdC5wYXJzZShmLnJlYWQoKSlcbnhzZFxud2l0aCBvcGVuKFwiZHJ1Z2Jhbmtfc2NoZW1hLmpzb25cIiwgXCJ3XCIpIGFzIGY6XG4gICAgICAgIGYud3JpdGUoanNvbi5kdW1wcyh4c2QsIGYsIGluZGVudD00LCBzb3J0X2tleXM9VHJ1ZSkpXG4gICAgICAgIGYud3JpdGUoanNvbi5kdW1wKHhzZCwgZiwgaW5kZW50PTQsIHNvcnRfa2V5cz1UcnVlKSlcbndpdGggb3BlbihcImRydWdiYW5rX3NjaGVtYS5qc29uXCIsIFwid1wiKSBhcyBmOlxuICAgICAgICBmLndyaXRlKGpzb24uZHVtcCh4c2QsIGYsIGluZGVudD00LCBzb3J0X2tleXM9VHJ1ZSkpXG5qc29uLmR1bXAoeHNkKVxud2l0aCBvcGVuKFwiZHJ1Z2JhbmsueHNkXCIsIFwiclwiKSBhcyBmOlxuICAgICAgICB4c2QgPSBmLnJlYWQoKVxuZCA9IHhtbHRvZGljdC5wYXJzZSh4c2QpXG5gYGAifQ== -->
-<pre class="python"><code>with open(&quot;full_database.xml&quot;) as f:
-    xml = xmltodict.parse(f.readlines())
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgcHl0aG9uXG4jIHdpdGggb3BlbihcImZ1bGxfZGF0YWJhc2UueG1sXCIpIGFzIGY6XG4jICAgICB4bWwgPSB4bWx0b2RpY3QucGFyc2UoZi5yZWFkbGluZXMoKSlcblxud2l0aCBvcGVuKFwibGFyZ2VfZmlsZXMvZHJ1Z2JhbmtfZnVsbF9kYXRhYmFzZS54bWxcIikgYXMgZjpcbiAgeG1sID0gZi5yZWFkKClcbiAgICAgICAgXG5kID0geG1sdG9kaWN0LnBhcnNlKHhtbCwgcHJvY2Vzc19uYW1lc3BhY2VzPVRydWUpXG5cbndpdGggb3BlbihcImxhcmdlX2ZpbGVzL2RydWdiYW5rX2Z1bGxfZGF0YWJhc2VcIikgYXMgZjpcbiAganNvbi5kdW1wKGQsIGYsIGluZGVudD00LCBzb3J0X2tleXM9VHJ1ZSlcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcblxuIyB3aXRoIG9wZW4oXCJkcnVnYmFua19mdWxsX2RhdGFiYXNlXCIsIFwid1wiKSBhcyBmOlxuIyAgICAgICAgIGpzb24uZHVtcChkLCBmLCBpbmRlbnQ9NCwgc29ydF9rZXlzPVRydWUpXG4jIGQgPSB4bWx0b2RpY3QucGFyc2UoeG1sLCBwcm9jZXNzX25hbWVzcGFjZXM9RmFsc2UpXG4jIGltcG9ydCB4bWx0b2RpY3RcbiMgaW1wb3J0IGpzb25cbiMgd2l0aCBvcGVuKFwiZnVsbF9kYXRhYmFzZS54bWxcIikgYXMgZjpcbiMgICAgICAgICB4bWwgPSBmLnJlYWQoKVxuIyBkID0geG1sdG9kaWN0LnBhcnNlKHhtbCwgcHJvY2Vzc19uYW1lc3BhY2VzPUZhbHNlKVxuIyB3aXRoIG9wZW4oXCJkcnVnYmFua19mdWxsX2RhdGFiYXNlXCIsIFwid1wiKSBhcyBmOlxuIyAgICAgICAgIGYud3JpdGUoanNvbi5kdW1wKGQsIGYsIGluZGVudD00KSlcbiMgZCA9IHhtbHRvZGljdC5wYXJzZSh4bWwpXG4jIHdpdGggb3BlbihcImRydWdiYW5rX2Z1bGxfZGF0YWJhc2VcIiwgXCJ3XCIpIGFzIGY6XG4jICAgICAgICAganNvbi5kdW1wKGQsIGYsIGluZGVudD00LCBzb3J0X2tleXM9VHJ1ZSlcbiMgaW1wb3J0IHhtbHRvZGljdFxuIyBpbXBvcnQganNvblxuIyB3aXRoIG9wZW4oXCJkcnVnYmFuay54c2RcIiwgXCJyXCIpIGFzIGY6XG4jICAgICAgICAgeHNkID0geG1sdG9kaWN0LnBhcnNlKGYucmVhZCgpKVxuIyB4c2RcbiMgd2l0aCBvcGVuKFwiZHJ1Z2Jhbmtfc2NoZW1hLmpzb25cIiwgXCJ3XCIpIGFzIGY6XG4jICAgICAgICAgZi53cml0ZShqc29uLmR1bXBzKHhzZCwgZiwgaW5kZW50PTQsIHNvcnRfa2V5cz1UcnVlKSlcbiMgICAgICAgICBmLndyaXRlKGpzb24uZHVtcCh4c2QsIGYsIGluZGVudD00LCBzb3J0X2tleXM9VHJ1ZSkpXG4jIHdpdGggb3BlbihcImRydWdiYW5rX3NjaGVtYS5qc29uXCIsIFwid1wiKSBhcyBmOlxuIyAgICAgICAgIGYud3JpdGUoanNvbi5kdW1wKHhzZCwgZiwgaW5kZW50PTQsIHNvcnRfa2V5cz1UcnVlKSlcbiMganNvbi5kdW1wKHhzZClcbiMgd2l0aCBvcGVuKFwiZHJ1Z2JhbmsueHNkXCIsIFwiclwiKSBhcyBmOlxuIyAgICAgICAgIHhzZCA9IGYucmVhZCgpXG4jIGQgPSB4bWx0b2RpY3QucGFyc2UoeHNkKVxuYGBgIn0= -->
+<pre class="python"><code># with open(&quot;full_database.xml&quot;) as f:
+#     xml = xmltodict.parse(f.readlines())
 
-with open(&quot;full_database.xml&quot;) as f:
-        xml = f.read()
+with open(&quot;large_files/drugbank_full_database.xml&quot;) as f:
+  xml = f.read()
         
 d = xmltodict.parse(xml, process_namespaces=True)
 
-with open(&quot;full_database.json&quot;) as f:
-        json.dump(d, f, indent=4, sort_keys=True)
-class(d)
-type(d)
+with open(&quot;large_files/drugbank_full_database&quot;) as f:
+  json.dump(d, f, indent=4, sort_keys=True)
+                                                          
 
-with open(&quot;full_database.json&quot;, &quot;w&quot;) as f:
-        json.dump(d, f, indent=4, sort_keys=True)
-d = xmltodict.parse(xml, process_namespaces=False)
-import xmltodict
-import json
-with open(&quot;full_database.xml&quot;) as f:
-        xml = f.read()
-d = xmltodict.parse(xml, process_namespaces=False)
-with open(&quot;full_database.json&quot;, &quot;w&quot;) as f:
-        f.write(json.dump(d, f, indent=4))
-d = xmltodict.parse(xml)
-with open(&quot;full_database.json&quot;, &quot;w&quot;) as f:
-        json.dump(d, f, indent=4, sort_keys=True)
-import xmltodict
-import json
-with open(&quot;drugbank.xsd&quot;, &quot;r&quot;) as f:
-        xsd = xmltodict.parse(f.read())
-xsd
-with open(&quot;drugbank_schema.json&quot;, &quot;w&quot;) as f:
-        f.write(json.dumps(xsd, f, indent=4, sort_keys=True))
-        f.write(json.dump(xsd, f, indent=4, sort_keys=True))
-with open(&quot;drugbank_schema.json&quot;, &quot;w&quot;) as f:
-        f.write(json.dump(xsd, f, indent=4, sort_keys=True))
-json.dump(xsd)
-with open(&quot;drugbank.xsd&quot;, &quot;r&quot;) as f:
-        xsd = f.read()
-d = xmltodict.parse(xsd)</code></pre>
+# with open(&quot;drugbank_full_database&quot;, &quot;w&quot;) as f:
+#         json.dump(d, f, indent=4, sort_keys=True)
+# d = xmltodict.parse(xml, process_namespaces=False)
+# import xmltodict
+# import json
+# with open(&quot;full_database.xml&quot;) as f:
+#         xml = f.read()
+# d = xmltodict.parse(xml, process_namespaces=False)
+# with open(&quot;drugbank_full_database&quot;, &quot;w&quot;) as f:
+#         f.write(json.dump(d, f, indent=4))
+# d = xmltodict.parse(xml)
+# with open(&quot;drugbank_full_database&quot;, &quot;w&quot;) as f:
+#         json.dump(d, f, indent=4, sort_keys=True)
+# import xmltodict
+# import json
+# with open(&quot;drugbank.xsd&quot;, &quot;r&quot;) as f:
+#         xsd = xmltodict.parse(f.read())
+# xsd
+# with open(&quot;drugbank_schema.json&quot;, &quot;w&quot;) as f:
+#         f.write(json.dumps(xsd, f, indent=4, sort_keys=True))
+#         f.write(json.dump(xsd, f, indent=4, sort_keys=True))
+# with open(&quot;drugbank_schema.json&quot;, &quot;w&quot;) as f:
+#         f.write(json.dump(xsd, f, indent=4, sort_keys=True))
+# json.dump(xsd)
+# with open(&quot;drugbank.xsd&quot;, &quot;r&quot;) as f:
+#         xsd = f.read()
+# d = xmltodict.parse(xsd)</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 </div>
 
-<div id="rmd-source-code">LS0tCnRpdGxlOiAiUGFyc2UgRHJ1Z2JhbmsgWE1MIgphdXRob3I6ICJBcmllbCBCYWx0ZXIiCmRhdGU6ICJgciBmb3JtYXQoU3lzLnRpbWUoKSwgJyVkICVCLCAlWScpYCIKb3V0cHV0OiBodG1sX25vdGVib29rCmVkaXRvcl9vcHRpb25zOiAKICBjaHVua19vdXRwdXRfdHlwZTogaW5saW5lCi0tLQoKIyBLbml0cgpgYGB7ciwgaW5jbHVkZT1GfQprbml0cjo6b3B0c19jaHVuayRzZXQoCiAgd2FybmluZz1GLAogIG1lc3NhZ2U9RiwKICBlY2hvPUYsCiAgZXJyb3I9RiwKICBudW1iZXJfc2VjdGlvbj1ULAogIGluY2x1ZGU9RgopCmBgYAoKIyBMaWJyYXJpZXMKYGBge3IsIGluY2x1ZGU9Rn0KIyBMb2FkIExpYnJhcmllcwpsaWJyYXJ5KHZyb29tKQpsaWJyYXJ5KHRpZHl2ZXJzZSkKbGlicmFyeShnZ3Bsb3QyKQpsaWJyYXJ5KGthYmxlRXh0cmEpCmxpYnJhcnkoaGVyZSkKbGlicmFyeShqc29ubGl0ZSkKbGlicmFyeShyZXRpY3VsYXRlKQp1c2VfcHl0aG9uKCIvaG9tZS9iYWx0ZXIvY29uZGEvYmluL3B5dGhvbiIpCnVzZV9jb25kYWVudigiYmFzZSIpCmBgYApgYGB7YmFzaH0KbWtkaXIgLXAgRHJ1Z0JhbmsvbGFyZ2VfZmlsZXgKYGBgCgoKIyBEb3dubG9hZCB0aGUgU2NoZW1hIChYU0QpCmBgYHtiYXNofQpjdXJsIFwKICAtTGZ2IFwKICAtbyBEcnVnQmFuay9sYXJnZV9maWxlcy9kcnVnYmFua194c2QuemlwIFwKICAtdSBhcmllbC5iYWx0ZXJAcHJvdmlkZW5jZS5vcmc6VGhyZWVTaXhAXjMgXAogIGh0dHBzOi8vZ28uZHJ1Z2JhbmsuY29tL2RvY3MvZHJ1Z2JhbmsueHNkCmBgYAoKIyBEb3dubG9hZCB0aGUgZnVsbCBkYXRhYmFzZQpgYGB7YmFzaH0KY3VybCBcCiAgLUxmdiBcCiAgLW8gbGFyZ2VfZmlsZXMvZHJ1Z2JhbmtfZnVsbF9kYXRhYmFzZS56aXAgXAogIC11IGFyaWVsLmJhbHRlckBwcm92aWRlbmNlLm9yZzpUaHJlZVNpeEBeMyBcCiAgaHR0cHM6Ly9nby5kcnVnYmFuay5jb20vcmVsZWFzZXMvNS0xLTkvZG93bmxvYWRzL2FsbC1mdWxsLWRhdGFiYXNlCmBgYAoKCmBgYHtiYXNofQp3aGljaCBweXRob24KYGBgCgpgYGB7cHl0aG9ufQppbXBvcnQgeG1sdG9kaWN0CmltcG9ydCBqc29uCmBgYAoKYGBge3B5dGhvbn0Kd2l0aCBvcGVuKCJmdWxsX2RhdGFiYXNlLnhtbCIpIGFzIGY6CiAgICB4bWwgPSB4bWx0b2RpY3QucGFyc2UoZi5yZWFkbGluZXMoKSkKCndpdGggb3BlbigiZnVsbF9kYXRhYmFzZS54bWwiKSBhcyBmOgogICAgICAgIHhtbCA9IGYucmVhZCgpCiAgICAgICAgCmQgPSB4bWx0b2RpY3QucGFyc2UoeG1sLCBwcm9jZXNzX25hbWVzcGFjZXM9VHJ1ZSkKCndpdGggb3BlbigiZnVsbF9kYXRhYmFzZS5qc29uIikgYXMgZjoKICAgICAgICBqc29uLmR1bXAoZCwgZiwgaW5kZW50PTQsIHNvcnRfa2V5cz1UcnVlKQpjbGFzcyhkKQp0eXBlKGQpCgp3aXRoIG9wZW4oImZ1bGxfZGF0YWJhc2UuanNvbiIsICJ3IikgYXMgZjoKICAgICAgICBqc29uLmR1bXAoZCwgZiwgaW5kZW50PTQsIHNvcnRfa2V5cz1UcnVlKQpkID0geG1sdG9kaWN0LnBhcnNlKHhtbCwgcHJvY2Vzc19uYW1lc3BhY2VzPUZhbHNlKQppbXBvcnQgeG1sdG9kaWN0CmltcG9ydCBqc29uCndpdGggb3BlbigiZnVsbF9kYXRhYmFzZS54bWwiKSBhcyBmOgogICAgICAgIHhtbCA9IGYucmVhZCgpCmQgPSB4bWx0b2RpY3QucGFyc2UoeG1sLCBwcm9jZXNzX25hbWVzcGFjZXM9RmFsc2UpCndpdGggb3BlbigiZnVsbF9kYXRhYmFzZS5qc29uIiwgInciKSBhcyBmOgogICAgICAgIGYud3JpdGUoanNvbi5kdW1wKGQsIGYsIGluZGVudD00KSkKZCA9IHhtbHRvZGljdC5wYXJzZSh4bWwpCndpdGggb3BlbigiZnVsbF9kYXRhYmFzZS5qc29uIiwgInciKSBhcyBmOgogICAgICAgIGpzb24uZHVtcChkLCBmLCBpbmRlbnQ9NCwgc29ydF9rZXlzPVRydWUpCmltcG9ydCB4bWx0b2RpY3QKaW1wb3J0IGpzb24Kd2l0aCBvcGVuKCJkcnVnYmFuay54c2QiLCAiciIpIGFzIGY6CiAgICAgICAgeHNkID0geG1sdG9kaWN0LnBhcnNlKGYucmVhZCgpKQp4c2QKd2l0aCBvcGVuKCJkcnVnYmFua19zY2hlbWEuanNvbiIsICJ3IikgYXMgZjoKICAgICAgICBmLndyaXRlKGpzb24uZHVtcHMoeHNkLCBmLCBpbmRlbnQ9NCwgc29ydF9rZXlzPVRydWUpKQogICAgICAgIGYud3JpdGUoanNvbi5kdW1wKHhzZCwgZiwgaW5kZW50PTQsIHNvcnRfa2V5cz1UcnVlKSkKd2l0aCBvcGVuKCJkcnVnYmFua19zY2hlbWEuanNvbiIsICJ3IikgYXMgZjoKICAgICAgICBmLndyaXRlKGpzb24uZHVtcCh4c2QsIGYsIGluZGVudD00LCBzb3J0X2tleXM9VHJ1ZSkpCmpzb24uZHVtcCh4c2QpCndpdGggb3BlbigiZHJ1Z2JhbmsueHNkIiwgInIiKSBhcyBmOgogICAgICAgIHhzZCA9IGYucmVhZCgpCmQgPSB4bWx0b2RpY3QucGFyc2UoeHNkKQpgYGAKCgoKCgo=</div>
+<div id="rmd-source-code">LS0tCnRpdGxlOiAiUGFyc2UgRHJ1Z2JhbmsgWE1MIgphdXRob3I6ICJBcmllbCBCYWx0ZXIiCmRhdGU6ICJgciBmb3JtYXQoU3lzLnRpbWUoKSwgJyVkICVCLCAlWScpYCIKb3V0cHV0OiBodG1sX25vdGVib29rCmVkaXRvcl9vcHRpb25zOiAKICBjaHVua19vdXRwdXRfdHlwZTogaW5saW5lCi0tLQoKIyBLbml0cgpgYGB7ciwgaW5jbHVkZT1GfQprbml0cjo6b3B0c19jaHVuayRzZXQoCiAgd2FybmluZz1GLAogIG1lc3NhZ2U9RiwKICBlY2hvPUYsCiAgZXJyb3I9RiwKICBudW1iZXJfc2VjdGlvbj1ULAogIGluY2x1ZGU9RgopCmBgYAoKIyBMaWJyYXJpZXMKYGBge3IsIGluY2x1ZGU9Rn0KIyBMb2FkIExpYnJhcmllcwpsaWJyYXJ5KHZyb29tKQpsaWJyYXJ5KHRpZHl2ZXJzZSkKbGlicmFyeShnZ3Bsb3QyKQpsaWJyYXJ5KGthYmxlRXh0cmEpCmxpYnJhcnkoaGVyZSkKbGlicmFyeShqc29ubGl0ZSkKbGlicmFyeShyZXRpY3VsYXRlKQp1c2VfcHl0aG9uKCIvaG9tZS9iYWx0ZXIvY29uZGEvYmluL3B5dGhvbiIpCnVzZV9jb25kYWVudigiYmFzZSIpCmBgYAoKCmBgYHtiYXNofQpta2RpciAtcCBsYXJnZV9maWxlcwpgYGAKCgojIERvd25sb2FkIHRoZSBTY2hlbWEgKFhTRCkKYGBge2Jhc2h9CiNjdXJsIFwKIyAgLUxmdiBcCiMgIC1vIERydWdCYW5rL2xhcmdlX2ZpbGVzL2RydWdiYW5rX3hzZC56aXAgXAojICAtdSBhcmllbC5iYWx0ZXJAcHJvdmlkZW5jZS5vcmc6VGhyZWVTaXhAXjMgXAojICBodHRwczovL2dvLmRydWdiYW5rLmNvbS9kb2NzL2RydWdiYW5rLnhzZApgYGAKCiMgRG93bmxvYWQgdGhlIGZ1bGwgZGF0YWJhc2UKYGBge2Jhc2h9CiNjdXJsIFwKIyAgLUxmdiBcCiMgIC1vIGxhcmdlX2ZpbGVzL2RydWdiYW5rX2Z1bGxfZGF0YWJhc2UuemlwIFwKIyAgLXUgYXJpZWwuYmFsdGVyQHByb3ZpZGVuY2Uub3JnOlRocmVlU2l4QF4zIFwKIyAgaHR0cHM6Ly9nby5kcnVnYmFuay5jb20vcmVsZWFzZXMvNS0xLTkvZG93bmxvYWRzL2FsbC1mdWxsLWRhdGFiYXNlCiAgCndnZXQgXAogIC1xIFwKICAtTyBsYXJnZV9maWxlcy9kcnVnYmFua19mdWxsX2RhdGFiYXNlLnppcCBcCiAgLS11c2VyPSJhcmllbC5iYWx0ZXJAcHJvdmlkZW5jZS5vcmciIFwKICAtLXBhc3N3b3JkPSJUaHJlZVNpeEBeMyIgXAogIGh0dHBzOi8vZ28uZHJ1Z2JhbmsuY29tL3JlbGVhc2VzLzUtMS05L2Rvd25sb2Fkcy9hbGwtZnVsbC1kYXRhYmFzZQpgYGAKCgpgYGB7YmFzaH0Kd2hpY2ggcHl0aG9uCgp1bnppcCBcCiAgLW9jIFwKICAtZCBsYXJnZV9maWxlcyBsYXJnZV9maWxlcy9kcnVnYmFua19mdWxsX2RhdGFiYXNlLnppcCBcCiAgPiBsYXJnZV9maWxlcy9kcnVnYmFua19mdWxsX2RhdGFiYXNlLnhtbApgYGAKCmBgYHtweXRob259CmltcG9ydCB4bWx0b2RpY3QKaW1wb3J0IGpzb24KYGBgCgpgYGB7cHl0aG9ufQojIHdpdGggb3BlbigiZnVsbF9kYXRhYmFzZS54bWwiKSBhcyBmOgojICAgICB4bWwgPSB4bWx0b2RpY3QucGFyc2UoZi5yZWFkbGluZXMoKSkKCndpdGggb3BlbigibGFyZ2VfZmlsZXMvZHJ1Z2JhbmtfZnVsbF9kYXRhYmFzZS54bWwiKSBhcyBmOgogIHhtbCA9IGYucmVhZCgpCiAgICAgICAgCmQgPSB4bWx0b2RpY3QucGFyc2UoeG1sLCBwcm9jZXNzX25hbWVzcGFjZXM9VHJ1ZSkKCndpdGggb3BlbigibGFyZ2VfZmlsZXMvZHJ1Z2JhbmtfZnVsbF9kYXRhYmFzZSIpIGFzIGY6CiAganNvbi5kdW1wKGQsIGYsIGluZGVudD00LCBzb3J0X2tleXM9VHJ1ZSkKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAoKIyB3aXRoIG9wZW4oImRydWdiYW5rX2Z1bGxfZGF0YWJhc2UiLCAidyIpIGFzIGY6CiMgICAgICAgICBqc29uLmR1bXAoZCwgZiwgaW5kZW50PTQsIHNvcnRfa2V5cz1UcnVlKQojIGQgPSB4bWx0b2RpY3QucGFyc2UoeG1sLCBwcm9jZXNzX25hbWVzcGFjZXM9RmFsc2UpCiMgaW1wb3J0IHhtbHRvZGljdAojIGltcG9ydCBqc29uCiMgd2l0aCBvcGVuKCJmdWxsX2RhdGFiYXNlLnhtbCIpIGFzIGY6CiMgICAgICAgICB4bWwgPSBmLnJlYWQoKQojIGQgPSB4bWx0b2RpY3QucGFyc2UoeG1sLCBwcm9jZXNzX25hbWVzcGFjZXM9RmFsc2UpCiMgd2l0aCBvcGVuKCJkcnVnYmFua19mdWxsX2RhdGFiYXNlIiwgInciKSBhcyBmOgojICAgICAgICAgZi53cml0ZShqc29uLmR1bXAoZCwgZiwgaW5kZW50PTQpKQojIGQgPSB4bWx0b2RpY3QucGFyc2UoeG1sKQojIHdpdGggb3BlbigiZHJ1Z2JhbmtfZnVsbF9kYXRhYmFzZSIsICJ3IikgYXMgZjoKIyAgICAgICAgIGpzb24uZHVtcChkLCBmLCBpbmRlbnQ9NCwgc29ydF9rZXlzPVRydWUpCiMgaW1wb3J0IHhtbHRvZGljdAojIGltcG9ydCBqc29uCiMgd2l0aCBvcGVuKCJkcnVnYmFuay54c2QiLCAiciIpIGFzIGY6CiMgICAgICAgICB4c2QgPSB4bWx0b2RpY3QucGFyc2UoZi5yZWFkKCkpCiMgeHNkCiMgd2l0aCBvcGVuKCJkcnVnYmFua19zY2hlbWEuanNvbiIsICJ3IikgYXMgZjoKIyAgICAgICAgIGYud3JpdGUoanNvbi5kdW1wcyh4c2QsIGYsIGluZGVudD00LCBzb3J0X2tleXM9VHJ1ZSkpCiMgICAgICAgICBmLndyaXRlKGpzb24uZHVtcCh4c2QsIGYsIGluZGVudD00LCBzb3J0X2tleXM9VHJ1ZSkpCiMgd2l0aCBvcGVuKCJkcnVnYmFua19zY2hlbWEuanNvbiIsICJ3IikgYXMgZjoKIyAgICAgICAgIGYud3JpdGUoanNvbi5kdW1wKHhzZCwgZiwgaW5kZW50PTQsIHNvcnRfa2V5cz1UcnVlKSkKIyBqc29uLmR1bXAoeHNkKQojIHdpdGggb3BlbigiZHJ1Z2JhbmsueHNkIiwgInIiKSBhcyBmOgojICAgICAgICAgeHNkID0gZi5yZWFkKCkKIyBkID0geG1sdG9kaWN0LnBhcnNlKHhzZCkKYGBgCgoKCgoK</div>
 
 
 
