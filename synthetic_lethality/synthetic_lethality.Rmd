@@ -1,0 +1,32 @@
+---
+title: "Synthetic Lethality"
+output: 
+  html_notebook: default
+---
+
+Synthetic lethality - Wikipedia
+https://en.wikipedia.org/wiki/Synthetic_lethality
+
+Synthetic Lethality in Cancer Therapeutics: The Next Generation - PMC
+https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8295179/
+
+Development of synthetic lethality in cancer: molecular and cellular classification - PMC
+https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7573576/
+
+Synthetic lethal combinations of low-toxicity drugs for breast cancer identified in silico by genetic screens in yeast - PubMed
+https://pubmed.ncbi.nlm.nih.gov/30555636/
+
+synthetic lethality cancer - Google Search
+https://www.google.com/search?q=synthetic+lethality+cancer&client=firefox-b-1-d&sxsrf=APq-WBtfnEqDIL4kchNV0LjP64pzHV36bQ%3A1649354993404&ei=8ShPYoqmGMax0PEPn-aPwAU&ved=0ahUKEwjK4vWTxoL3AhXGGDQIHR_zA1gQ4dUDCA0&uact=5&oq=synthetic+lethality+cancer&gs_lcp=Cgdnd3Mtd2l6EAMyBQgAEIAEMgYIABAHEB4yBggAEAcQHjIGCAAQBxAeMgUIABCABDIGCAAQBxAeMgYIABAHEB4yBggAEAcQHjIGCAAQBxAeMgYIABAHEB46BwgAEEcQsAM6BAgAEA1KBAhBGABKBAhGGABQhghY5hNghBZoAnABeACAAViIAacGkgECMTCYAQCgAQHIAQjAAQE&sclient=gws-wiz
+
+Synthetic lethality as an engine for cancer drug target discovery | Nature Reviews Drug Discovery
+https://www.nature.com/articles/s41573-019-0046-z
+
+Synthetic lethality and cancer | Nature Reviews Genetics
+https://www.nature.com/articles/nrg.2017.47
+
+Advances in synthetic lethality for cancer therapy: cellular mechanism and clinical translation | Journal of Hematology & Oncology | Full Text
+https://jhoonline.biomedcentral.com/articles/10.1186/s13045-020-00956-5
+
+
+"off target"
