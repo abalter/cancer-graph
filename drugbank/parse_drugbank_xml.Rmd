@@ -32,8 +32,10 @@ library(reticulate)
 use_python("/home/balter/conda/bin/python")
 use_condaenv("base")
 ```
+
+
 ```{bash}
-mkdir -p DrugBank/large_filex
+mkdir -p DrugBank/large_file
 ```
 
 
@@ -60,55 +62,61 @@ curl \
 which python
 ```
 
+
 ```{python}
 import xmltodict
 import json
+import os
+
 ```
 
-```{python}
-with open("full_database.xml") as f:
-    xml = xmltodict.parse(f.readlines())
+```{bash}
+pwd
+```
 
-with open("full_database.xml") as f:
-        xml = f.read()
-        
-d = xmltodict.parse(xml, process_namespaces=True)
-
-with open("full_database.json") as f:
-        json.dump(d, f, indent=4, sort_keys=True)
-class(d)
-type(d)
-
-with open("full_database.json", "w") as f:
-        json.dump(d, f, indent=4, sort_keys=True)
-d = xmltodict.parse(xml, process_namespaces=False)
-import xmltodict
-import json
-with open("full_database.xml") as f:
-        xml = f.read()
-d = xmltodict.parse(xml, process_namespaces=False)
-with open("full_database.json", "w") as f:
-        f.write(json.dump(d, f, indent=4))
-d = xmltodict.parse(xml)
-with open("full_database.json", "w") as f:
-        json.dump(d, f, indent=4, sort_keys=True)
-import xmltodict
-import json
-with open("drugbank.xsd", "r") as f:
-        xsd = xmltodict.parse(f.read())
-xsd
-with open("drugbank_schema.json", "w") as f:
-        f.write(json.dumps(xsd, f, indent=4, sort_keys=True))
-        f.write(json.dump(xsd, f, indent=4, sort_keys=True))
-with open("drugbank_schema.json", "w") as f:
-        f.write(json.dump(xsd, f, indent=4, sort_keys=True))
-json.dump(xsd)
-with open("drugbank.xsd", "r") as f:
-        xsd = f.read()
-d = xmltodict.parse(xsd)
+```{r}
+list.files()
 ```
 
 
 
+```{python}
+os.listdir()
+
+# with open("large_files/full_drugbank_database.xml") as f:
+#     xml = xmltodict.parse(f.readlines())
+
+with open("large_files/full_drugbank_database.xml", "rb") as f:
+  xml = f.read()
+
+print("parsing to dict")
+d = xmltodict.parse(xml, process_namespaces=False)
+
+with open("large_files/full_drugbank_database.json", "w") as f:
+  json.dump(d, f, indent=4, sort_keys=True)
+
+drugs = d['drugbank']['drug']
+
+with open("large_files/drugbank_drugs.json", "w") asf:
+  json.dump(drugs, f, indent=4, sort_keys=True)
+```
+
+```{python}
+def depth(d):
+  if isinstance(d, dict):
+    return 1 + (max(map(depth, d.values())) if d else 0)
+  return 0
+
+depth(ddd)
+```
+
+
+
+
+https://stackoverflow.com/a/68754233/188963
+
+
+
+dict_keys(['@type', '@created', '@updated', 'drugbank-id', 'name', 'description', 'cas-number', 'unii', 'state', 'groups', 'general-references', 'synthesis-reference', 'indication', 'pharmacodynamics', 'mechanism-of-action', 'toxicity', 'metabolism', 'absorption', 'half-life', 'protein-binding', 'route-of-elimination', 'volume-of-distribution', 'clearance', 'classification', 'salts', 'synonyms', 'products', 'international-brands', 'mixtures', 'packagers', 'manufacturers', 'prices', 'categories', 'affected-organisms', 'dosages', 'atc-codes', 'ahfs-codes', 'pdb-entries', 'fda-label', 'msds', 'patents', 'food-interactions', 'drug-interactions', 'sequences', 'experimental-properties', 'external-identifiers', 'external-links', 'pathways', 'reactions', 'snp-effects', 'snp-adverse-drug-reactions', 'targets', 'enzymes', 'carriers', 'transporters'])
 
 
