@@ -80,7 +80,8 @@ We observed that the columns in the website data are wrong. Let's look at the da
 
 ### Website Version
 ```{r}
-cell_lines_website_raw = read_csv('large_files/cell_lines.csv')
+list.files("large_files")
+cell_lines_website_raw = read_csv('large_files/harmonized/cell_lines.tsv')
 ```
 
 ```{r}

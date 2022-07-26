@@ -2,7 +2,11 @@
 title: "Parse Drugbank XML"
 author: "Ariel Balter"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
-output: html_notebook
+output: 
+  html_notebook:
+    theme: journal
+    toc: true
+    toc_depth: 2
 editor_options: 
   chunk_output_type: inline
 ---

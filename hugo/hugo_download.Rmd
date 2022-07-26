@@ -12,6 +12,7 @@ library(tidyverse)
 library(bigrquery)
 library(DT)
 library(here)
+library(vroom)
 ```
 
 
@@ -84,7 +85,7 @@ Contains genes, synonyms, and gene properties including canonical names.
 
 
 ```{bash, eval=eval_bash}
-dir="large_files/hugo"
+dir="large_files"
 #mkdir -p large_files/hugo
 #cd large_files/hugo
 
@@ -110,7 +111,7 @@ Same except `pseudogene.org` --> `pseudogene`. `mamit-trnadb` --> `mamit_trnadb`
 
 ```{bash, eval=eval_sh}
 pwd
-dir="large_files/hugo/"
+dir="large_files/"
 
 colnames="hgnc_id\tsymbol\tname\tlocus_group\tlocus_type\tstatus\tlocation\tlocation_sortable\talias_symbol\talias_name\tprev_symbol\tprev_name\tgene_family\tgene_family_id\tdate_approved_reserved\tdate_symbol_changed\tdate_name_changed\tdate_modified\tentrez_id\tensembl_gene_id\tvega_id\tucsc_id\tena\trefseq_accession\tccds_id\tuniprot_ids\tpubmed_id\tmgd_id\trgd_id\tlsdb\tcosmic\tomim_id\tmirbase\thomeodb\tsnornabase\tbioparadigms_slc\torphanet\tpseudogene\thorde_id\tmerops\timgt\tiuphar\tkznf_gene_catalog\tmamit_trnadb\tcd\tlncrnadb\tenzyme_id\tintermediate_filament_db\trna_central_ids\tlncipedia\tgtrnadb\tagr\tmane_select\tgencc"
 
@@ -284,10 +285,10 @@ pwd
 # Set Up BigQuery
 ```{r}
 bq_deauth()
-bq_auth(email="ariel.balter@providence.org")
+bq_auth(email="ariel.balter@gmail.com")
 
 # cancer_graph_project = "psjh-238522"
-cancer_graph_project = "eacri-cancer-graph"
+cancer_graph_project = "some-os-bio-data"
 dataset = "hugo"
 ```
 
@@ -396,7 +397,7 @@ uploadToBQ = function(filename, schema, sep=",")
 
 ## HUGO Schema
 ```{r}
-hugo_fiels = list(
+hugo_fields = list(
   bq_field(name="hgnc_id", type="string", description="TBD"),
   bq_field(name="symbol", type="string", description="TBD"),
   bq_field(name="name", type="string", description="TBD"),
@@ -459,14 +460,18 @@ hugo_fiels = list(
 ### Upload
 ```{r}
 
-df = read.delim(
-    file=here("large_files/hugo/hugo_complete_set.tsv"),
-    colClasses = bqFieldsToColClasses(hugo_fields),
-    sep="\t",
-    strip.white = T,
-    na.strings = "",
-    stringsAsFactors = F
-  )
+list.files("large_files")
+
+# df = read.delim(
+#     file=here("large_files/hugo_complete_set.tsv"),
+#     colClasses = bqFieldsToColClasses(hugo_fields),
+#     sep="\t",
+#     strip.white = T,
+#     na.strings = "",
+#     stringsAsFactors = F
+#   )
+
+df = read_tsv("large_files/hugo_complete_set.tsv")
 
 table_bq = bq_table(cancer_graph_project, dataset, "hugo")
 

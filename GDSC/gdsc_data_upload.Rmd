@@ -517,4 +517,3 @@ for (gdsc_bq_table in gdsc_bq_tables_list)
 ```
 
 
-

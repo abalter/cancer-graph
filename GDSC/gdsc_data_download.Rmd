@@ -60,7 +60,7 @@ knitr::opts_chunk$set(
 )
 
 eval_r = TRUE
-eval_sh = FALSE
+eval_sh = TRUE
 ```
 
 # Introduction
